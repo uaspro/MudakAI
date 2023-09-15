@@ -12,7 +12,7 @@ namespace MudakAI.Connectors.Azure.Blob
 {
     public class BlobLocksService
     {
-        private const int WaitForUnlockDelayMilliseconds = 1000;
+        private const int WaitForUnlockDelayMilliseconds = 500;
 
         private readonly BlobServiceClient _blobServiceClient;
         private readonly BlobContainerClient _blobContainerClient;
@@ -78,16 +78,19 @@ namespace MudakAI.Connectors.Azure.Blob
         {
             var blobClient = _blobContainerClient.GetBlobClient(lockId);
 
-            BlobProperties blobProperties;
-
             do
             {
                 var blobPropertiesResponse = await blobClient.GetPropertiesAsync();
-                blobProperties = blobPropertiesResponse.Value;
+                var blobProperties = blobPropertiesResponse.Value;
+
+                if (blobProperties.LeaseStatus != LeaseStatus.Locked)
+                {
+                    break;
+                }
 
                 await Task.Delay(WaitForUnlockDelayMilliseconds);
             }
-            while (blobProperties.LeaseStatus == LeaseStatus.Locked);
+            while (true);
         }
 
         private static string GetLeaseId(string input)
