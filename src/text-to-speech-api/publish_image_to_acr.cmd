@@ -1,0 +1,1 @@
+az acr build --resource-group shared-euw --registry AYSoftwareSharedDev --image ttsapi:latest .

@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>338e4c18-deb7-435d-ae38-000dacc36fae</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\Andrii\.nuget\packages\microsoft.semantickernel.connectors.ai.openai\0.23.230906.2-preview\contentFiles\any\netstandard2.0\Tokenizers\Settings\encoder.json" />
+    <Content Remove="C:\Users\Andrii\.nuget\packages\microsoft.semantickernel.connectors.ai.openai\0.23.230906.2-preview\contentFiles\any\netstandard2.0\Tokenizers\Settings\vocab.bpe" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapr.AspNetCore" Version="1.11.0" />
+    <PackageReference Include="FluentValidation" Version="11.7.1" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="11.1.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MudakAI.Connectors.Azure.Table\MudakAI.Connectors.Azure.Table.csproj" />
+    <ProjectReference Include="..\MudakAI.Connectors.Discord\MudakAI.Connectors.Discord.csproj" />
+    <ProjectReference Include="..\MudakAI.Connectors.OpenAI\MudakAI.Connectors.OpenAI.csproj" />
+  </ItemGroup>
+
+</Project>

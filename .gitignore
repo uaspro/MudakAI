@@ -1,0 +1,10 @@
+.vs
+obj
+bin
+PublishProfiles
+/src/MudakAI.Net/MudakAI.Chat.WebService/*.user
+/src/MudakAI.Net/MudakAI.Voice.Functions/Properties/serviceDependencies.local.json
+*.user
+azurite
+/src/MudakAI.Net/MudakAI.Chat.WebService/appsettings.Development.json
+appsettings.Development.json

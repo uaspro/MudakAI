@@ -1,0 +1,14 @@
+{
+  "profiles": {
+    "MudakAI.TextToSpeech.Functions": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7030"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "httpPort": 31881,
+      "useSSL": false
+    }
+  }
+}

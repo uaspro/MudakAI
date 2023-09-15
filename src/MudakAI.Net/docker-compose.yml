@@ -1,0 +1,90 @@
+version: '3.4'
+
+services:
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    command: "azurite --loose --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001 --location /workspace --debug /workspace/debug.log"
+    ports:
+      - 10000:10000
+      - 10001:10001
+      - 10002:10002
+    volumes:
+      - ./azurite:/workspace
+
+  mudakai.chat.webservice:
+    image: ${DOCKER_REGISTRY-}mudakaichatwebservice
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - TableStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;
+    build:
+      context: .
+      dockerfile: MudakAI.Chat.WebService/Dockerfile
+    depends_on:
+      - mudakai.texttospeech.api
+
+  mudakai.chat.webservice-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "mudakaichat-webservice", "-app-port", "80" ]
+    depends_on:
+      - mudakai.chat.webservice
+    network_mode: "service:mudakai.chat.webservice"
+
+  mudakai.texttospeech.api:
+    image: ${DOCKER_REGISTRY-}mudakaitexttospeechapi
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    build:
+      context: .
+      dockerfile: MudakAI.TextToSpeech.API/Dockerfile
+
+  mudakai.texttospeech.api-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "mudakaitexttospeech-api", "-app-port", "80" ]
+    depends_on:
+      - mudakai.texttospeech.api
+    network_mode: "service:mudakai.texttospeech.api"
+
+  mudakai.texttospeech.functions:
+    image: ${DOCKER_REGISTRY-}mudakaitexttospeechfunctions
+    environment:
+      - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;
+      - BlobStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;
+    build:
+      context: .
+      dockerfile: MudakAI.TextToSpeech.Functions/Dockerfile
+    depends_on:
+      - azurite
+      - tts.api
+
+  mudakai.texttospeech.functions-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "mudakaitexttospeech-functions", "-app-port", "80" ]
+    depends_on:
+      - mudakai.texttospeech.functions
+    network_mode: "service:mudakai.texttospeech.functions"
+
+  tts.api:
+    image: ${DOCKER_REGISTRY-}tts-api
+    build:
+      context: ../text-to-speech-api
+      dockerfile: ../text-to-speech-api/Dockerfile
+    ports:
+      - "3100:3100"
+
+  tts.api-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "tts-api", "-app-port", "3100" ]
+    depends_on:
+      - tts.api
+    network_mode: "service:tts.api"
+
+  mudakai.voice.functions:
+    image: ${DOCKER_REGISTRY-}mudakaivoicefunctions
+    environment:
+      - AzureWebJobsStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;
+      - BlobStorage=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;QueueEndpoint=http://host.docker.internal:10001/devstoreaccount1;
+    build:
+      context: .
+      dockerfile: MudakAI.Voice.Functions/Dockerfile
+    depends_on:
+      - azurite

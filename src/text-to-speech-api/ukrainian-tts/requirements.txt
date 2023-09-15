@@ -1,0 +1,9 @@
+# requirements for HuggingFace demo. Installs local package.
+torch
+espnet>=202301
+typeguard<3 # typeguard 3.0.0 is incompatible with espnet
+num2words
+ukrainian-word-stress==1.0.2
+ukrainian-accentor
+gradio # 3.34
+huggingface_hub # ==0.11.1

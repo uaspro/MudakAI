@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+gunicorn
+./num2words
+./ukrainian-accentor
+./ukrainian-tts
+IPython
