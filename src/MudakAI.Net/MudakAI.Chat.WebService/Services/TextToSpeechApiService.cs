@@ -11,7 +11,7 @@ namespace MudakAI.TextToSpeech.Functions.Services
             _daprClient = daprClient;
         }
 
-        public async Task InitiateTextToSpeech(string uniqueId, string text)
+        public async Task InitiateTextToSpeech(string uniqueId, string text, string voice)
         {
             var request = _daprClient.CreateInvokeMethodRequest(
                 HttpMethod.Post,
@@ -20,7 +20,8 @@ namespace MudakAI.TextToSpeech.Functions.Services
                 new
                 {
                     uniqueId,
-                    text
+                    text,
+                    voice
                 });
 
             var response = await _daprClient.InvokeMethodWithResponseAsync(request);

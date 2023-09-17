@@ -1,7 +1,7 @@
 ﻿using Azure.AI.OpenAI;
 using Discord;
 using Discord.WebSocket;
-using MudakAI.Chat.WebService.Services;
+using MudakAI.Chat.WebService.Repositories;
 using MudakAI.Connectors.Discord.CQRS.Notifications;
 using MudakAI.Connectors.OpenAI.Services;
 using MudakAI.TextToSpeech.Functions.Services;
@@ -12,13 +12,15 @@ namespace MudakAI.Chat.WebService.CQRS.Notifications
     {
         private readonly ILogger<DiscordMessageReceivedNotificationHandler> _logger;
 
+        private readonly BotConfigurationRepository _botConfigurationRepository;
         private readonly ChatHistoryRepository _chatHistoryRepository;
         private readonly DiscordSocketClient _discordSocketClient;
         private readonly OpenAIChatService _openAIChatService;
         private readonly TextToSpeechApiService _textToSpeechApiService;
 
         public DiscordMessageReceivedNotificationHandler(
-            ILogger<DiscordMessageReceivedNotificationHandler> logger, 
+            ILogger<DiscordMessageReceivedNotificationHandler> logger,
+            BotConfigurationRepository botConfigurationRepository,
             ChatHistoryRepository chatHistoryRepository,
             DiscordSocketClient discordSocketClient, 
             OpenAIChatService openAIChatService,
@@ -26,6 +28,7 @@ namespace MudakAI.Chat.WebService.CQRS.Notifications
         {
             _logger = logger;
 
+            _botConfigurationRepository = botConfigurationRepository;
             _chatHistoryRepository = chatHistoryRepository;
             _discordSocketClient = discordSocketClient;
             _openAIChatService = openAIChatService;
@@ -46,17 +49,25 @@ namespace MudakAI.Chat.WebService.CQRS.Notifications
                 return;
             }
 
+            var botPersona = await _botConfigurationRepository.GetPersona(((SocketGuildChannel)message.Channel).Guild.Id.ToString());
+
             ChatMessage chatReply;
             using (message.Channel.EnterTypingState())
             {
+                var chat = new List<ChatMessage>();
+
+                if (!string.IsNullOrWhiteSpace(botPersona.Description))
+                {
+                    var baseInstructionsMessage = new ChatMessage(ChatRole.System, botPersona.Description);
+                    chat.Add(baseInstructionsMessage);
+                }
+
                 var usersInChannel = await message.Channel.GetUsersAsync().FlattenAsync();
                 var channelUserDisplayNames = string.Join(',', usersInChannel.Where(u => !u.IsBot).Select(u => $"\"{((SocketGuildUser)u).DisplayName}\""));
 
-                var chat = new List<ChatMessage>();
-
-                const string systemMessageTemplate = "Гравці в чаті: {0}";
-                var systemMessage = new ChatMessage(ChatRole.System, string.Format(systemMessageTemplate, channelUserDisplayNames));
-                chat.Add(systemMessage);
+                const string channelInfoMessageTemplate = "Гравці в чаті: {0}";
+                var channelInfoMessage = new ChatMessage(ChatRole.System, string.Format(channelInfoMessageTemplate, channelUserDisplayNames));
+                chat.Add(channelInfoMessage);
 
                 var chatHistory = await _chatHistoryRepository.GetChatHistory(message.Author.Id.ToString(), message.Channel.Id.ToString());
                 chat.AddRange(chatHistory);
@@ -88,7 +99,10 @@ namespace MudakAI.Chat.WebService.CQRS.Notifications
             var voiceChannel = message.Channel as SocketVoiceChannel;
             if (voiceChannel != null)
             {
-                await _textToSpeechApiService.InitiateTextToSpeech($"{voiceChannel.Guild.Id}_{voiceChannel.Id}_{message.Id}", chatReply.Content);
+                await _textToSpeechApiService.InitiateTextToSpeech(
+                    $"{voiceChannel.Guild.Id}_{voiceChannel.Id}_{message.Id}", 
+                    chatReply.Content,
+                    botPersona.Voice);
 
                 _logger.LogInformation("Text-to-speech initiated for message '{messageId}'", message.Id);
             }

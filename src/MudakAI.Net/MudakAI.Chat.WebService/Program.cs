@@ -1,6 +1,7 @@
 using Azure.Data.Tables;
 using MediatR;
-using MudakAI.Chat.WebService.Services;
+using MudakAI.Chat.WebService.CQRS.Commands;
+using MudakAI.Chat.WebService.Repositories;
 using MudakAI.Connectors.Azure.Table;
 using MudakAI.Connectors.Discord;
 using MudakAI.TextToSpeech.Functions.Services;
@@ -24,8 +25,11 @@ namespace MudakAI.Chat.WebService
             builder.Services.AddDaprClient();
             builder.Services.AddTableStorage(settings.TableStorageConnectionString);
 
-            builder.Services.AddDiscord(settings.Discord);
+            builder.Services.AddDiscord(Assembly.GetExecutingAssembly(), settings.Discord);
+
             builder.Services.AddOpenAI(settings.OpenAI);
+
+            builder.Services.AddTransient<BotConfigurationRepository>();
 
             builder.Services.AddTransient(
                 sp => new ChatHistoryRepository(

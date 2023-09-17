@@ -3,7 +3,7 @@ using Azure.AI.OpenAI;
 using Azure.Data.Tables;
 using MudakAI.Connectors.Azure.Table;
 
-namespace MudakAI.Chat.WebService.Services
+namespace MudakAI.Chat.WebService.Repositories
 {
     public class ChatHistoryEntity : ITableEntity
     {
@@ -37,7 +37,7 @@ namespace MudakAI.Chat.WebService.Services
         {
             var now = DateTime.UtcNow;
 
-            var chatHistoryEntities = 
+            var chatHistoryEntities =
                 chatHistory.Select((m, idx) => new ChatHistoryEntity
                 {
                     PartitionKey = GetPartitionKey(userId, now),
@@ -57,10 +57,10 @@ namespace MudakAI.Chat.WebService.Services
             var partitionKey = GetPartitionKey(userId, now);
             DateTimeOffset thresholdTime = now - _maxHistoryAge;
 
-            var chatHistoryEntities = 
+            var chatHistoryEntities =
                 await Find(ch => ch.PartitionKey == partitionKey && ch.Timestamp >= thresholdTime)
                         .Where(ch => ch.RowKey.StartsWith(channelId))
-                        .Take(_maxHistoryDepth * 2)
+                        .Take(_maxHistoryDepth)
                         .ToArrayAsync();
 
             return chatHistoryEntities.OrderBy(e => e.Timestamp)

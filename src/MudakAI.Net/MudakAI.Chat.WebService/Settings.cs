@@ -45,7 +45,6 @@ namespace MudakAI.Chat.WebService
             RuleFor(x => x.OpenAI.OpenAIApiKey).NotEmpty();
             RuleFor(x => x.OpenAI.ModelId).NotEmpty();
             RuleFor(x => x.OpenAI.ResponseTokensLimit).GreaterThan(0);
-            RuleFor(x => x.OpenAI.BaseInstructions).NotEmpty();
         }
     }
 }
