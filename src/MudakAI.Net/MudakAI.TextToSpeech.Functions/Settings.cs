@@ -45,7 +45,6 @@ namespace MudakAI.TextToSpeech.Functions
             RuleFor(x => x.BlobStorageAudioContainerName).NotEmpty();
 
             RuleFor(x => x.TextToSpeech).NotNull();
-            RuleFor(x => x.TextToSpeech.Voice).NotEmpty();
             RuleFor(x => x.TextToSpeech.Speed).GreaterThanOrEqualTo(0.5m);
             RuleFor(x => x.TextToSpeech.Speed).LessThanOrEqualTo(2m);
         }

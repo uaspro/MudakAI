@@ -26,7 +26,7 @@ namespace MudakAI.Connectors.OpenAI.Services
 
         public async Task<ChatMessage> GenerateResponse(IEnumerable<ChatMessage> chatHistory)
         {
-            var chat = _openAIChat.CreateNewChat(_settings.BaseInstructions);
+            var chat = _openAIChat.CreateNewChat();
 
             chat.AddRange(chatHistory.Select(m => new SKChatMessage(m)));
 

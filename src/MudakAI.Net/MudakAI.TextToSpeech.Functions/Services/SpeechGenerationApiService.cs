@@ -18,8 +18,6 @@ namespace MudakAI.TextToSpeech.Functions.Services
     {
         public class Settings
         {
-            public TextToSpeechVoice Voice { get; set; }
-
             public decimal Speed { get; set; }
         }
 
@@ -32,7 +30,7 @@ namespace MudakAI.TextToSpeech.Functions.Services
             _daprClient = daprClient;
         }
 
-        public async Task<Stream> GenerateSpeech(string text)
+        public async Task<Stream> GenerateSpeech(string text, string voice)
         {
             var request = _daprClient.CreateInvokeMethodRequest(
                 HttpMethod.Post,
@@ -41,7 +39,7 @@ namespace MudakAI.TextToSpeech.Functions.Services
                 new
                 {
                     text,
-                    voice = _settings.Voice.ToString().ToLowerInvariant(),
+                    voice = voice.ToLowerInvariant(),
                     speed = _settings.Speed
                 });
 

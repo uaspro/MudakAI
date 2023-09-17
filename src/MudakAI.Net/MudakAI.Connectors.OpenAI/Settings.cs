@@ -7,7 +7,5 @@
         public string ModelId { get; set; }
 
         public int ResponseTokensLimit { get; set; }
-
-        public string BaseInstructions { get; set; }
     }
 }

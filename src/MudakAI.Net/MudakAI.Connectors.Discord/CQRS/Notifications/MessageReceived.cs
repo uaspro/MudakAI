@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MudakAI.Connectors.Discord.CQRS.Notifications
 {
-    public class MessageReceivedNotification : INotification
+    public sealed class MessageReceivedNotification : INotification
     {
         public MessageReceivedNotification(SocketMessage message)
         {

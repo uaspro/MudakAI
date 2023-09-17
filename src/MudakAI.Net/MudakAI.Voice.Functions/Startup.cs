@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MudakAI.Connectors.Azure.Blob;
 using MudakAI.Connectors.Discord;
 using System.IO;
+using System.Reflection;
 
 [assembly: FunctionsStartup(typeof(MudakAI.Voice.Functions.Startup))]
 namespace MudakAI.Voice.Functions
@@ -27,6 +28,7 @@ namespace MudakAI.Voice.Functions
             var settings = Settings.CreateFrom(configuration);
 
             builder.Services.AddDiscord(
+                Assembly.GetExecutingAssembly(),
                 new Connectors.Discord.Settings
                 {
                     DiscordBotToken = settings.DiscordBotToken

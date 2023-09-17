@@ -1,4 +1,5 @@
-﻿using Azure.Data.Tables;
+﻿using Azure;
+using Azure.Data.Tables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,30 @@ namespace MudakAI.Connectors.Azure.Table
         }
 
         public abstract string TableName { get; }
+
+        public async Task<T> Get(string partitionKey, string rowKey)
+        {
+            try
+            {
+                var tableClient = _tableServiceClient.GetTableClient(TableName);
+                await tableClient.CreateIfNotExistsAsync();
+
+                var tableEntity = await tableClient.GetEntityAsync<T>(partitionKey, rowKey);
+                return tableEntity.Value;
+            } 
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                return null;
+            }
+        }
+
+        public async Task Upsert(T entity)
+        {
+            var tableClient = _tableServiceClient.GetTableClient(TableName);
+            await tableClient.CreateIfNotExistsAsync();
+
+            await tableClient.UpsertEntityAsync(entity);
+        }
 
         public async Task Upsert(IEnumerable<T> entities)
         {
