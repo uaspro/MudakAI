@@ -37,15 +37,19 @@ namespace MudakAI.Connectors.Discord.Services
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _discordClientService.DiscordClient.MessageReceived += 
-                (message) => Mediator.Publish(new MessageReceivedNotification(message));
+            _discordClientService.DiscordClient.MessageReceived +=
+                (message) => Task.Factory.StartNew(
+                    () => Mediator.Publish(new MessageReceivedNotification(message), stoppingToken), 
+                    stoppingToken, 
+                    TaskCreationOptions.LongRunning, 
+                    TaskScheduler.Default);
 
             await _discordClientService.Connect();
 
             _logger.LogInformation("Discord event listener started");
 
             // Block this task until the service is running
-            await Task.Delay(-1);
+            await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken);
         }
     }
 }
