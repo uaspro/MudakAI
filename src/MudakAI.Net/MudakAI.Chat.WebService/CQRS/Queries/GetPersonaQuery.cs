@@ -35,7 +35,7 @@ namespace MudakAI.Chat.WebService.CQRS.Queries
             _mediator = mediator;
         }
 
-        [SlashCommand("get-persona-test", "Отримати опис поточної персони бота")]
+        [SlashCommand("get-persona", "Отримати опис поточної персони бота")]
         public async Task GetPersona()
         {
             var response = 

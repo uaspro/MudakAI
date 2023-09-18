@@ -47,7 +47,7 @@ namespace MudakAI.Chat.WebService.CQRS.Commands
             _mediator = mediator;
         }
 
-        [SlashCommand("set-persona-test", "Задати персону боту")]
+        [SlashCommand("set-persona", "Задати персону боту")]
         public async Task SetPersona(string description, VoiceSelection voice)
         {
             var response =
