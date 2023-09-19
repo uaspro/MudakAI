@@ -18,6 +18,9 @@ namespace MudakAI.Voice.Functions
 
     public class PlaybackListenerFunction
     {
+        private const int TemporaryAudioFileBufferSize = 4096;
+        private const int PCMStreamBufferSizeMillis = 100;
+
         private static readonly TimeSpan PlaybackDurationLimit = TimeSpan.FromSeconds(60);
 
         private readonly DiscordClientService _discordClientService;
@@ -70,10 +73,13 @@ namespace MudakAI.Voice.Functions
                     audioBlobName,
                     guildId);
 
+                var temporaryAudioFilePath = Path.Combine(Environment.CurrentDirectory, audioBlobName);
+
                 try
                 {
-                    var temporaryAudioFilePath = Path.Combine(Environment.CurrentDirectory, audioBlobName);
-                    using var temporaryAudioFileStream = File.Create(temporaryAudioFilePath);
+                    using var temporaryAudioFileStream = 
+                        File.Create(temporaryAudioFilePath, TemporaryAudioFileBufferSize, FileOptions.Asynchronous | FileOptions.DeleteOnClose);
+
                     temporaryAudioFileStream.Seek(0, SeekOrigin.Begin);
 
                     var audioBlob = await _blobStorageService.Get(audioBlobName);
@@ -87,11 +93,11 @@ namespace MudakAI.Voice.Functions
                         FileName = "ffmpeg",
                         Arguments = $"-hide_banner -loglevel panic -i \"{temporaryAudioFilePath}\" -ac 2 -f s16le -ar 48000 -af \"volume=0.1\" pipe:1",
                         UseShellExecute = false,
-                        RedirectStandardOutput = true,
+                        RedirectStandardOutput = true
                     });
 
                     using var output = ffmpeg.StandardOutput.BaseStream;
-                    using var discordPCMStream = audioClient.CreatePCMStream(AudioApplication.Voice);
+                    using var discordPCMStream = audioClient.CreatePCMStream(AudioApplication.Mixed, bufferMillis: PCMStreamBufferSizeMillis);
 
                     try
                     {
@@ -104,6 +110,8 @@ namespace MudakAI.Voice.Functions
 
                     await audioClient.StopAsync();
 
+                    await _blobStorageService.Delete(audioBlobName);
+
                     log.LogInformation(
                         "Finished playing audio '{fileName}' in guild '{guildId}'",
                         audioBlobName,
@@ -111,7 +119,7 @@ namespace MudakAI.Voice.Functions
                 }
                 finally
                 {
-                    File.Delete(audioBlobName);
+                    File.Delete(temporaryAudioFilePath);
                 }
             }
             catch (Exception ex)
@@ -121,10 +129,11 @@ namespace MudakAI.Voice.Functions
                     audioBlobName,
                     channelId,
                     ex);
+
+                throw;
             }
-            finally 
+            finally
             {
-                await _blobStorageService.Delete(audioBlobName);
                 await _blobLocksService.ReleaseLock(guildId, messageId);
             }
         }

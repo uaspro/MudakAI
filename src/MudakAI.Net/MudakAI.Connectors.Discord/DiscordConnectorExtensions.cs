@@ -10,21 +10,11 @@ namespace MudakAI.Connectors.Discord
 {
     public static class DiscordConnectorExtensions
     {
-        public static IServiceCollection AddDiscord(this IServiceCollection services, Assembly interactionsAssembly, Settings settings, bool registerEventListener = true)
+        public static IServiceCollection AddDiscord(this IServiceCollection services, Settings settings, bool registerEventListener = true, Assembly interactionsAssembly =  null)
         {
             var discordConfig = new DiscordSocketConfig();
             services.AddSingleton(discordConfig)
                     .AddSingleton<DiscordSocketClient>();
-
-            services.AddSingleton(
-                new InteractionServiceConfig
-                {
-                    DefaultRunMode = RunMode.Async,
-                    UseCompiledLambda = true,
-                    AutoServiceScopes = true
-                });
-
-            services.AddSingleton<InteractionService>();
 
             services.AddSingleton(
                 sp => new DiscordClientService(
@@ -34,6 +24,19 @@ namespace MudakAI.Connectors.Discord
                     settings,
                     sp.GetRequiredService<DiscordSocketClient>(),
                     sp.GetRequiredService<InteractionService>()));
+
+            if (interactionsAssembly != null)
+            {
+                services.AddSingleton(
+                    new InteractionServiceConfig
+                    {
+                        DefaultRunMode = RunMode.Async,
+                        UseCompiledLambda = true,
+                        AutoServiceScopes = true
+                    });
+
+                services.AddSingleton<InteractionService>();
+            }
 
             if (registerEventListener)
             {

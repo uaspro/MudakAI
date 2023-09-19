@@ -25,7 +25,7 @@ namespace MudakAI.Chat.WebService
             builder.Services.AddDaprClient();
             builder.Services.AddTableStorage(settings.TableStorageConnectionString);
 
-            builder.Services.AddDiscord(Assembly.GetExecutingAssembly(), settings.Discord);
+            builder.Services.AddDiscord(settings.Discord, interactionsAssembly: Assembly.GetExecutingAssembly());
 
             builder.Services.AddOpenAI(settings.OpenAI);
 

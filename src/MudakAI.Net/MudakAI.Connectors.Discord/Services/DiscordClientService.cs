@@ -48,7 +48,23 @@ namespace MudakAI.Connectors.Discord.Services
                 return;
             }
 
-            await _interactionService.AddModulesAsync(_interactionsAssembly, _serviceProvider);
+            if (_interactionsAssembly != null)
+            {
+                await _interactionService.AddModulesAsync(_interactionsAssembly, _serviceProvider);
+
+                DiscordClient.GuildAvailable += async (guild) =>
+                {
+                    await _interactionService.RegisterCommandsToGuildAsync(guild.Id);
+
+                    _logger.LogInformation("Discord socket client - Guild available: {guild}", guild.Name);
+                };
+
+                DiscordClient.InteractionCreated += async interaction =>
+                {
+                    var ctx = new SocketInteractionContext(DiscordClient, interaction);
+                    await _interactionService.ExecuteCommandAsync(ctx, _serviceProvider);
+                };
+            }
 
             DiscordClient.Ready += async () =>
             {
@@ -57,22 +73,9 @@ namespace MudakAI.Connectors.Discord.Services
                 _logger.LogInformation("Discord socket client - Ready!");
             };
 
-            DiscordClient.GuildAvailable += async (guild) =>
-            {
-                await _interactionService.RegisterCommandsToGuildAsync(guild.Id);
-
-                _logger.LogInformation("Discord socket client - Guild available: {guild}", guild.Name);
-            };
-
             DiscordClient.Disconnected += async (ex) =>
             {
                 _logger.LogInformation("Discord socket client - Disconnected. Failure: {failure}", ex);
-            };
-
-            DiscordClient.InteractionCreated += async interaction =>
-            {
-                var ctx = new SocketInteractionContext(DiscordClient, interaction);
-                await _interactionService.ExecuteCommandAsync(ctx, _serviceProvider);
             };
 
             _logger.LogInformation("Connecting to Discord...");
