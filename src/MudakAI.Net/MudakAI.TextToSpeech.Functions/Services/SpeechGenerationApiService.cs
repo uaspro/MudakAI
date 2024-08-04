@@ -39,8 +39,7 @@ namespace MudakAI.TextToSpeech.Functions.Services
                 new
                 {
                     text,
-                    voice = voice.ToLowerInvariant(),
-                    speed = _settings.Speed
+                    voice = voice.ToLowerInvariant()
                 });
 
             var response = await _daprClient.InvokeMethodWithResponseAsync(request);

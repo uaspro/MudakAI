@@ -1,7 +1,6 @@
 fastapi
 uvicorn
 gunicorn
-./num2words
-./ukrainian-accentor
-./ukrainian-tts
 IPython
+scipy==1.11.2
+git+https://github.com/robinhad/ukrainian-tts.git

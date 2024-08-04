@@ -10,13 +10,12 @@ ukr_tts = TTS(device="cpu")  # can try cpu, cuda
 class TTSRequest(BaseModel):
     text: str
     voice: str = "dmytro"
-    speed: float = 1.25
 
 @app.post("/tts/")
 async def generate_wav(request: TTSRequest):
     # Use an in-memory file to store the WAV data
     with io.BytesIO() as temp_file:
-        _, output_text = ukr_tts.tts(request.text, request.voice, Stress.Dictionary.value, temp_file, request.speed)
+        _, output_text = ukr_tts.tts(request.text, request.voice, Stress.Dictionary.value, temp_file)
         wav_data = temp_file.getvalue()
     
     return Response(content=wav_data, media_type="audio/wav")

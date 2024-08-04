@@ -17,7 +17,8 @@ namespace MudakAI.Chat.WebService.CQRS.Commands
             Tetiana,
             Mykyta,
             Lada,
-            Dmytro
+            Dmytro,
+            Oleksa
         }
 
         private readonly TextToSpeechApiService _textToSpeechApiService;
