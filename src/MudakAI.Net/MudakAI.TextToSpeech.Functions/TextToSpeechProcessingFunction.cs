@@ -44,7 +44,8 @@ namespace MudakAI.TextToSpeech.Functions
         [FunctionName("TextToSpeechProcessingFunction")]
         public async Task Run([ServiceBusTrigger("text-to-speech", Connection = "ServiceBusListen")] TextToSpeechRequest textToSpeechRequest)
         {
-            var audioStream = await _speechGenerationApiService.GenerateSpeech(textToSpeechRequest.Text, textToSpeechRequest.Voice);
+            var audioStream = 
+                await _speechGenerationApiService.GenerateSpeech(textToSpeechRequest.Text, textToSpeechRequest.Voice, TextToSpeechEngine.OpenAI);
 
             await _blobStorageService.Upload(textToSpeechRequest.UniqueId, audioStream);
 

@@ -1,11 +1,24 @@
 ﻿using Dapr.Client;
+using MudakAI.Connectors.OpenAI.Services;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace MudakAI.TextToSpeech.Functions.Services
 {
-    public enum TextToSpeechVoice
+    public enum TextToSpeechEngine
+    {
+        Default = 0,
+        OpenAI
+    }
+
+    public enum VoiceSelection
+    {
+        Male,
+        Female
+    }
+
+    public enum DefaultTextToSpeechVoice
     {
         None,
         Tetiana,
@@ -16,21 +29,42 @@ namespace MudakAI.TextToSpeech.Functions.Services
 
     public class SpeechGenerationApiService
     {
-        public class Settings
-        {
-            public decimal Speed { get; set; }
-        }
-
-        private readonly Settings _settings;
         private readonly DaprClient _daprClient;
+        private readonly OpenAITextToSpeechService _openAITextToSpeechService;
 
-        public SpeechGenerationApiService(Settings settings, DaprClient daprClient)
+        public SpeechGenerationApiService(DaprClient daprClient, OpenAITextToSpeechService openAITextToSpeechService)
         {
-            _settings = settings;
             _daprClient = daprClient;
+            _openAITextToSpeechService = openAITextToSpeechService;
         }
 
-        public async Task<Stream> GenerateSpeech(string text, string voice)
+        public Task<Stream> GenerateSpeech(string text, string voice, TextToSpeechEngine textToSpeechEngine = TextToSpeechEngine.Default)
+        {
+            switch (textToSpeechEngine)
+            {
+                case TextToSpeechEngine.OpenAI:
+                    var openAIVoice =
+                        string.Equals(voice, VoiceSelection.Male.ToString(), System.StringComparison.InvariantCultureIgnoreCase)
+                            ? OpenAITextToSpeechVoice.Onyx
+                            : OpenAITextToSpeechVoice.Nova;
+
+                    return GenerateSpeechOpenAI(text, openAIVoice);
+                default:
+                    var defaultVoice =
+                        string.Equals(voice, VoiceSelection.Male.ToString(), System.StringComparison.InvariantCultureIgnoreCase)
+                            ? DefaultTextToSpeechVoice.Dmytro
+                            : DefaultTextToSpeechVoice.Tetiana;
+
+                    return GenerateSpeechDefault(text, defaultVoice);
+            }
+        }
+
+        private async Task<Stream> GenerateSpeechOpenAI(string text, OpenAITextToSpeechVoice voice)
+        {
+            return await _openAITextToSpeechService.GenerateSpeech(text, voice);
+        }
+
+        private async Task<Stream> GenerateSpeechDefault(string text, DefaultTextToSpeechVoice voice)
         {
             var request = _daprClient.CreateInvokeMethodRequest(
                 HttpMethod.Post,
@@ -39,7 +73,7 @@ namespace MudakAI.TextToSpeech.Functions.Services
                 new
                 {
                     text,
-                    voice = voice.ToLowerInvariant()
+                    voice = voice.ToString().ToLowerInvariant()
                 });
 
             var response = await _daprClient.InvokeMethodWithResponseAsync(request);

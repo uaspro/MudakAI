@@ -4,6 +4,7 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MudakAI.Connectors.Azure.Blob;
+using MudakAI.Connectors.OpenAI;
 using MudakAI.TextToSpeech.Functions.Services;
 using System.IO;
 
@@ -44,7 +45,7 @@ namespace MudakAI.TextToSpeech.Functions
                     .WithName(settings.ServiceBusPlaybackQueueName);
             });
 
-            builder.Services.AddSingleton(settings.TextToSpeech);
+            builder.Services.AddOpenAITTS(settings.OpenAI);
             builder.Services.AddTransient<SpeechGenerationApiService>();
         }
     }

@@ -8,3 +8,7 @@ PublishProfiles
 azurite
 /src/MudakAI.Net/MudakAI.Chat.WebService/appsettings.Development.json
 appsettings.Development.json
+/src/text-to-speech-api/spk_xvector.ark
+__pycache__
+/src/text-to-speech-api/feats_stats.npz
+/src/text-to-speech-api/model.pth

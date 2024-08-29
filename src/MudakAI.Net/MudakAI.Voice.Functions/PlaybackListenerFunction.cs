@@ -91,7 +91,7 @@ namespace MudakAI.Voice.Functions
                     using var ffmpeg = Process.Start(new ProcessStartInfo
                     {
                         FileName = "ffmpeg",
-                        Arguments = $"-hide_banner -loglevel panic -i \"{temporaryAudioFilePath}\" -ac 2 -f s16le -ar 48000 -af \"volume=0.1\" pipe:1",
+                        Arguments = $"-hide_banner -loglevel panic -i \"{temporaryAudioFilePath}\" -ac 2 -f s16le -ar 48000 -af \"volume=0.5\" pipe:1",
                         UseShellExecute = false,
                         RedirectStandardOutput = true
                     });

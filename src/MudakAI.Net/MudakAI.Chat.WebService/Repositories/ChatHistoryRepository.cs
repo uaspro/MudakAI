@@ -1,6 +1,7 @@
 ﻿using Azure;
-using Azure.AI.OpenAI;
 using Azure.Data.Tables;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 using MudakAI.Connectors.Azure.Table;
 
 namespace MudakAI.Chat.WebService.Repositories
@@ -33,7 +34,7 @@ namespace MudakAI.Chat.WebService.Repositories
 
         public override string TableName => "ChatHistory";
 
-        public async Task AppendChatHistory(string userId, string channelId, string messageId, params ChatMessage[] chatHistory)
+        public async Task AppendChatHistory(string userId, string channelId, string messageId, params ChatMessageContent[] chatHistory)
         {
             var now = DateTime.UtcNow;
 
@@ -50,7 +51,7 @@ namespace MudakAI.Chat.WebService.Repositories
             await Upsert(chatHistoryEntities);
         }
 
-        public async Task<IEnumerable<ChatMessage>> GetChatHistory(string userId, string channelId)
+        public async Task<ChatHistory> GetChatHistory(string userId, string channelId)
         {
             var now = DateTime.UtcNow;
 
@@ -63,9 +64,13 @@ namespace MudakAI.Chat.WebService.Repositories
                         .Take(_maxHistoryDepth)
                         .ToArrayAsync();
 
-            return chatHistoryEntities.OrderBy(e => e.Timestamp)
+            var chatHistory = new ChatHistory();
+
+            chatHistory.AddRange(chatHistoryEntities.OrderBy(e => e.Timestamp)
                                       .ThenBy(e => e.RowKey)
-                                      .Select(e => new ChatMessage(e.Role, e.Content));
+                                      .Select(e => new ChatMessageContent(new AuthorRole(e.Role), e.Content)));
+
+            return chatHistory;
         }
 
         private string GetPartitionKey(string userId, DateTime date)

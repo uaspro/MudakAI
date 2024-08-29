@@ -1,6 +1,7 @@
-﻿using Azure.AI.OpenAI;
-using Discord;
+﻿using Discord;
 using Discord.WebSocket;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 using MudakAI.Chat.WebService.Repositories;
 using MudakAI.Connectors.Discord.CQRS.Notifications;
 using MudakAI.Connectors.OpenAI.Services;
@@ -51,14 +52,14 @@ namespace MudakAI.Chat.WebService.CQRS.Notifications
 
             var botPersona = await _botConfigurationRepository.GetPersona(((SocketGuildChannel)message.Channel).Guild.Id.ToString());
 
-            ChatMessage chatReply;
+            ChatMessageContent chatReply;
             using (message.Channel.EnterTypingState())
             {
-                var chat = new List<ChatMessage>();
+                var chat = new ChatHistory();
 
                 if (!string.IsNullOrWhiteSpace(botPersona.Description))
                 {
-                    var baseInstructionsMessage = new ChatMessage(ChatRole.System, botPersona.Description);
+                    var baseInstructionsMessage = new ChatMessageContent(AuthorRole.System, botPersona.Description);
                     chat.Add(baseInstructionsMessage);
                 }
 
@@ -66,7 +67,7 @@ namespace MudakAI.Chat.WebService.CQRS.Notifications
                 var channelUserDisplayNames = string.Join(',', usersInChannel.Where(u => !u.IsBot).Select(u => $"\"{((SocketGuildUser)u).DisplayName}\""));
 
                 const string channelInfoMessageTemplate = "Гравці в чаті: {0}";
-                var channelInfoMessage = new ChatMessage(ChatRole.System, string.Format(channelInfoMessageTemplate, channelUserDisplayNames));
+                var channelInfoMessage = new ChatMessageContent(AuthorRole.System, string.Format(channelInfoMessageTemplate, channelUserDisplayNames));
                 chat.Add(channelInfoMessage);
 
                 var chatHistory = await _chatHistoryRepository.GetChatHistory(message.Author.Id.ToString(), message.Channel.Id.ToString());
@@ -76,7 +77,7 @@ namespace MudakAI.Chat.WebService.CQRS.Notifications
                 var messageCleanContent = message.CleanContent.Replace($"@{botUser.Username}#{botUser.Discriminator}", string.Empty).Trim();
 
                 const string userMessageTemplate = "[{0}]: {1}";
-                var userMessage = new ChatMessage(ChatRole.User, string.Format(userMessageTemplate, messageAuthorDisplayName, messageCleanContent));
+                var userMessage = new ChatMessageContent(AuthorRole.User, string.Format(userMessageTemplate, messageAuthorDisplayName, messageCleanContent));
                 chat.Add(userMessage);
 
                 chatReply = await _openAIChatService.GenerateResponse(chat);

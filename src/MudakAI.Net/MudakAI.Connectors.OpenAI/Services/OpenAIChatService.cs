@@ -1,10 +1,8 @@
-﻿using Azure.AI.OpenAI;
-using Microsoft.Extensions.Logging;
-using Microsoft.SemanticKernel.AI.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.AI.OpenAI.AzureSdk;
-using Microsoft.SemanticKernel.Connectors.AI.OpenAI.ChatCompletion;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
+using Microsoft.SemanticKernel.Connectors.OpenAI;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace MudakAI.Connectors.OpenAI.Services
@@ -14,9 +12,9 @@ namespace MudakAI.Connectors.OpenAI.Services
         private readonly ILogger<OpenAIChatService> _logger;
 
         private readonly Settings _settings;
-        private readonly OpenAIChatCompletion _openAIChat;
+        private readonly OpenAIChatCompletionService _openAIChat;
 
-        public OpenAIChatService(ILogger<OpenAIChatService> logger, Settings settings, OpenAIChatCompletion openAIChat)
+        public OpenAIChatService(ILogger<OpenAIChatService> logger, Settings settings, OpenAIChatCompletionService openAIChat)
         {
             _logger = logger;
 
@@ -24,23 +22,22 @@ namespace MudakAI.Connectors.OpenAI.Services
             _openAIChat = openAIChat;
         }
 
-        public async Task<ChatMessage> GenerateResponse(IEnumerable<ChatMessage> chatHistory)
+        public async Task<ChatMessageContent> GenerateResponse(ChatHistory chatHistory)
         {
-            var chat = _openAIChat.CreateNewChat();
-
-            chat.AddRange(chatHistory.Select(m => new SKChatMessage(m)));
-
             var chatReply = 
-                await _openAIChat.GenerateMessageAsync(
-                    chat,
-                    new ChatRequestSettings
+                await _openAIChat.GetChatMessageContentAsync(
+                    chatHistory,
+                    new PromptExecutionSettings
                     {
-                        MaxTokens = _settings.ResponseTokensLimit
+                        ExtensionData = new Dictionary<string, object>() 
+                        {
+                            { "MaxTokens", _settings.ResponseTokensLimit }
+                        }
                     });
 
             _logger.LogInformation("OpenAI chat response generated: {chatReply}", chatReply);
 
-            return new ChatMessage(ChatRole.Assistant, chatReply);
+            return new ChatMessageContent(AuthorRole.Assistant, chatReply.Items);
         }
     }
 }

@@ -1,9 +1,9 @@
 using Azure.Data.Tables;
 using MediatR;
-using MudakAI.Chat.WebService.CQRS.Commands;
 using MudakAI.Chat.WebService.Repositories;
 using MudakAI.Connectors.Azure.Table;
 using MudakAI.Connectors.Discord;
+using MudakAI.Connectors.OpenAI;
 using MudakAI.TextToSpeech.Functions.Services;
 using System.Reflection;
 
@@ -27,7 +27,7 @@ namespace MudakAI.Chat.WebService
 
             builder.Services.AddDiscord(settings.Discord, interactionsAssembly: Assembly.GetExecutingAssembly());
 
-            builder.Services.AddOpenAI(settings.OpenAI);
+            builder.Services.AddOpenAIChat(settings.OpenAI);
 
             builder.Services.AddTransient<BotConfigurationRepository>();
 

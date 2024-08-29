@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Configuration;
-using MudakAI.TextToSpeech.Functions.Services;
 
 namespace MudakAI.TextToSpeech.Functions
 {
@@ -20,7 +19,7 @@ namespace MudakAI.TextToSpeech.Functions
         public string BlobStorageConnectionString => _configuration.GetValue<string>("BlobStorage");
         public string BlobStorageAudioContainerName => _configuration.GetValue<string>("BlobStorageAudioContainerName");
 
-        public SpeechGenerationApiService.Settings TextToSpeech => _configuration.GetSection(nameof(TextToSpeech)).Get<SpeechGenerationApiService.Settings>();
+        public Connectors.OpenAI.Settings OpenAI => _configuration.GetSection(nameof(OpenAI)).Get<Connectors.OpenAI.Settings>();
 
         public static Settings CreateFrom(IConfiguration configuration)
         {
@@ -44,9 +43,9 @@ namespace MudakAI.TextToSpeech.Functions
             RuleFor(x => x.BlobStorageConnectionString).NotEmpty();
             RuleFor(x => x.BlobStorageAudioContainerName).NotEmpty();
 
-            RuleFor(x => x.TextToSpeech).NotNull();
-            RuleFor(x => x.TextToSpeech.Speed).GreaterThanOrEqualTo(0.5m);
-            RuleFor(x => x.TextToSpeech.Speed).LessThanOrEqualTo(2m);
+            RuleFor(x => x.OpenAI).NotNull();
+            RuleFor(x => x.OpenAI.OpenAIApiKey).NotEmpty();
+            RuleFor(x => x.OpenAI.TTSModelId).NotEmpty();
         }
     }
 }

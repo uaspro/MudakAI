@@ -14,11 +14,8 @@ namespace MudakAI.Chat.WebService.CQRS.Commands
 
         public enum VoiceSelection
         {
-            Tetiana,
-            Mykyta,
-            Lada,
-            Dmytro,
-            Oleksa
+            Male,
+            Female
         }
 
         private readonly TextToSpeechApiService _textToSpeechApiService;

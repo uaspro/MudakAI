@@ -6,6 +6,8 @@
 
         public string ModelId { get; set; }
 
+        public string TTSModelId { get; set; }
+
         public int ResponseTokensLimit { get; set; }
     }
 }
