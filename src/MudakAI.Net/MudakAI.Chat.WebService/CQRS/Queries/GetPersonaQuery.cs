@@ -1,6 +1,7 @@
 ﻿using Discord.Interactions;
 using MediatR;
 using MudakAI.Chat.WebService.Repositories;
+using MudakAI.Chat.WebService.Resources;
 
 namespace MudakAI.Chat.WebService.CQRS.Queries
 {
@@ -22,12 +23,15 @@ namespace MudakAI.Chat.WebService.CQRS.Queries
         {
             var response = await _botConfigurationRepository.GetPersona(request.GuildId);
 
-            return $"Поточний опис персони: \"{response.Description}\", з голосом: \"{response.Voice}\"";
+            return string.Format(Strings.GetPersona_CurrentDescription, response.Description, response.Voice);
         }
     }
 
     public class GetPersonaDiscordModule : InteractionModuleBase
     {
+        private const string CommandName = "get-persona";
+        private const string CommandDescription = "Отримати опис поточної персони бота";
+
         private readonly IMediator _mediator;
 
         public GetPersonaDiscordModule(IMediator mediator)
@@ -35,7 +39,7 @@ namespace MudakAI.Chat.WebService.CQRS.Queries
             _mediator = mediator;
         }
 
-        [SlashCommand("get-persona", "Отримати опис поточної персони бота")]
+        [SlashCommand(CommandName, CommandDescription)]
         public async Task GetPersona()
         {
             var response = 

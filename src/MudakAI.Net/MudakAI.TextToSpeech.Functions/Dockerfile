@@ -1,12 +1,14 @@
 #See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/azure-functions/dotnet:4 AS base
+FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0 AS base
 WORKDIR /home/site/wwwroot
 EXPOSE 80
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["MudakAI.TextToSpeech.Functions/MudakAI.TextToSpeech.Functions.csproj", "MudakAI.TextToSpeech.Functions/"]
+COPY ["MudakAI.Connectors.Azure.Blob/MudakAI.Connectors.Azure.Blob.csproj", "MudakAI.Connectors.Azure.Blob/"]
+COPY ["MudakAI.Connectors.OpenAI/MudakAI.Connectors.OpenAI.csproj", "MudakAI.Connectors.OpenAI/"]
 RUN dotnet restore "MudakAI.TextToSpeech.Functions/MudakAI.TextToSpeech.Functions.csproj"
 COPY . .
 WORKDIR "/src/MudakAI.TextToSpeech.Functions"

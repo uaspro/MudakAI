@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="SetPersona_Success" xml:space="preserve"><value>Успішно задано опис персони: "{0}", з голосом: "{1}"</value><comment>Success message when persona is set</comment></data>
+  <data name="SetPersona_CommandName" xml:space="preserve"><value>set-persona</value><comment>Slash command name for setting persona</comment></data>
+  <data name="SetPersona_CommandDescription" xml:space="preserve"><value>Задати персону боту</value><comment>Description of the set-persona command</comment></data>
+  <data name="GetPersona_CurrentDescription" xml:space="preserve"><value>Поточний опис персони: "{0}", з голосом: "{1}"</value><comment>Current persona description</comment></data>
+  <data name="GetPersona_CommandName" xml:space="preserve"><value>get-persona</value><comment>Slash command name for getting persona</comment></data>
+  <data name="GetPersona_CommandDescription" xml:space="preserve"><value>Отримати опис поточної персони бота</value><comment>Description of the get-persona command</comment></data>
+  <data name="Announcement_CommandName" xml:space="preserve"><value>announcement</value><comment>Slash command name for announcements</comment></data>
+  <data name="Announcement_CommandDescription" xml:space="preserve"><value>Зробити оголошення</value><comment>Description of the announcement command</comment></data>
+  <data name="Announcement_ChannelNotFound" xml:space="preserve"><value>Не знайдено каналу оголошень!</value><comment>Error message when announcement channel is not found</comment></data>
+  <data name="Announcement_Success" xml:space="preserve"><value>Оголошення успішно опубліковане!</value><comment>Success message when announcement is published</comment></data>
+  <data name="Speak_CommandName" xml:space="preserve"><value>speak</value><comment>Slash command name for text-to-speech</comment></data>
+  <data name="Speak_CommandDescription" xml:space="preserve"><value>Озвучити текст</value><comment>Description of the speak command</comment></data>
+  <data name="Speak_NotVoiceChannel" xml:space="preserve"><value>Текст можна озвучити лише в голосовому чаті.</value><comment>Error message when command is used outside voice channel</comment></data>
+  <data name="Speak_MinTextLength" xml:space="preserve"><value>Текст повинен містити хоча б {0} українські чи англійські літери.</value><comment>Error message for minimum text length</comment></data>
+  <data name="Speak_MaxTextLength" xml:space="preserve"><value>Текст має бути коротшим за {0} символів.</value><comment>Error message for maximum text length</comment></data>
+  <data name="Speak_Success" xml:space="preserve"><value>Прийнято, текст скоро буде озвучений!</value><comment>Success message when text-to-speech is initiated</comment></data>
+  <data name="Chat_ChannelInfo" xml:space="preserve"><value>Гравці в чаті: {0}</value><comment>System message showing players in chat</comment></data>
+  <data name="Chat_UserMessage" xml:space="preserve"><value>[{0}]: {1}</value><comment>User message format</comment></data>
+</root>

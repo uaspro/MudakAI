@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Discord.Interactions;
+using MudakAI.Chat.WebService.Resources;
 using MudakAI.TextToSpeech.Functions.Services;
 using System.Text.RegularExpressions;
 
@@ -9,6 +10,8 @@ namespace MudakAI.Chat.WebService.CQRS.Commands
     {
         private const int MinTextLength = 2;
         private const int MaxTextLength = 500;
+        private const string CommandName = "speak";
+        private const string CommandDescription = "Озвучити текст";
 
         private static readonly string MinTextValidationPattern = @$"([a-zA-Zа-яА-Я]){{{MinTextLength},}}";
 
@@ -25,27 +28,27 @@ namespace MudakAI.Chat.WebService.CQRS.Commands
             _textToSpeechApiService = textToSpeechApiService;
         }
 
-        [SlashCommand("speak", "Озвучити текст")]
+        [SlashCommand(CommandName, CommandDescription)]
         public async Task SetPersona(string text, VoiceSelection voice)
         {
             var voiceChannel = Context.Channel as IVoiceChannel;
             if (voiceChannel == null)
             {
-                await RespondAsync("Текст можна озвучити лише в голосовому чаті.", ephemeral: true);
+                await RespondAsync(Strings.Speak_NotVoiceChannel, ephemeral: true);
 
                 return;
             }
 
             if (text.Length < MinTextLength || !Regex.IsMatch(text, MinTextValidationPattern))
             {
-                await RespondAsync($"Текст повинен містити хоча б {MinTextLength} українські чи англійські літери.", ephemeral: true);
+                await RespondAsync(string.Format(Strings.Speak_MinTextLength, MinTextLength), ephemeral: true);
 
                 return;
             }
 
             if (text.Length > MaxTextLength)
             {
-                await RespondAsync($"Текст має бути коротшим за {MaxTextLength} символів.", ephemeral: true);
+                await RespondAsync(string.Format(Strings.Speak_MaxTextLength, MaxTextLength), ephemeral: true);
 
                 return;
             }
@@ -55,7 +58,7 @@ namespace MudakAI.Chat.WebService.CQRS.Commands
                 text,
                 voice.ToString());
 
-            await RespondAsync("Прийнято, текст скоро буде озвучений!", ephemeral: true);
+            await RespondAsync(Strings.Speak_Success, ephemeral: true);
         }
     }
 }

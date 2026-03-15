@@ -1,10 +1,12 @@
 using Azure.Data.Tables;
 using MediatR;
 using MudakAI.Chat.WebService.Repositories;
+using MudakAI.Chat.WebService.Resources;
 using MudakAI.Connectors.Azure.Table;
 using MudakAI.Connectors.Discord;
 using MudakAI.Connectors.OpenAI;
 using MudakAI.TextToSpeech.Functions.Services;
+using System.Globalization;
 using System.Reflection;
 
 namespace MudakAI.Chat.WebService
@@ -16,6 +18,9 @@ namespace MudakAI.Chat.WebService
             var builder = WebApplication.CreateBuilder(args);
 
             var settings = Settings.CreateFrom(builder.Configuration);
+
+            // Configure localization
+            ConfigureLocalization(settings.Localization);
 
             builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
 
@@ -48,6 +53,26 @@ namespace MudakAI.Chat.WebService
             app.UseAuthorization();
 
             app.Run();
+        }
+
+        private static void ConfigureLocalization(LocalizationSettings localizationSettings)
+        {
+            // Set the default culture from configuration
+            if (!string.IsNullOrWhiteSpace(localizationSettings?.DefaultCulture))
+            {
+                var defaultCulture = new CultureInfo(localizationSettings.DefaultCulture);
+                
+                // Set the culture for the current thread
+                CultureInfo.DefaultThreadCurrentCulture = defaultCulture;
+                CultureInfo.DefaultThreadCurrentUICulture = defaultCulture;
+                
+                // Set the culture for resource lookups
+                // Access the Culture property using reflection since it's internal
+                var stringsType = typeof(Strings);
+                var cultureProperty = stringsType.GetProperty("Culture", 
+                    System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public);
+                cultureProperty?.SetValue(null, defaultCulture);
+            }
         }
     }
 }

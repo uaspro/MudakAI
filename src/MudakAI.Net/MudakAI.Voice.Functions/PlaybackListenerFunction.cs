@@ -1,6 +1,6 @@
 using Discord.Audio;
 using Discord.WebSocket;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using MudakAI.Connectors.Azure.Blob;
 using MudakAI.Connectors.Discord.Services;
@@ -26,19 +26,22 @@ namespace MudakAI.Voice.Functions
         private readonly DiscordClientService _discordClientService;
         private readonly BlobStorageService _blobStorageService;
         private readonly BlobLocksService _blobLocksService;
+        private readonly ILogger<PlaybackListenerFunction> _log;
 
         public PlaybackListenerFunction(
             DiscordClientService discordClientService,
             BlobStorageService blobStorageService,
-            BlobLocksService blobLocksService)
+            BlobLocksService blobLocksService,
+            ILogger<PlaybackListenerFunction> log)
         {
             _discordClientService = discordClientService;
             _blobStorageService = blobStorageService;
             _blobLocksService = blobLocksService;
+            _log = log;
         }
 
-        [FunctionName("PlaybackListenerFunction")]
-        public async Task Run([ServiceBusTrigger("playback", Connection = "ServiceBus")] PlaybackRequest playbackRequest, ILogger log)
+        [Function("PlaybackListenerFunction")]
+        public async Task Run([ServiceBusTrigger("playback", Connection = "ServiceBus")] PlaybackRequest playbackRequest)
         {
             while (!_discordClientService.IsReady)
             {
@@ -54,7 +57,7 @@ namespace MudakAI.Voice.Functions
 
             try
             {
-                log.LogInformation(
+                _log.LogInformation(
                     "Aquiring lock for guild '{guildId}', message '{messageId}' for {playDurationLimit}",
                     guildId,
                     messageId,
@@ -68,7 +71,7 @@ namespace MudakAI.Voice.Functions
                     return;
                 }
 
-                log.LogInformation(
+                _log.LogInformation(
                     "Trying to play audio '{fileName}' in guild '{guildId}'",
                     audioBlobName,
                     guildId);
@@ -112,7 +115,7 @@ namespace MudakAI.Voice.Functions
 
                     await _blobStorageService.Delete(audioBlobName);
 
-                    log.LogInformation(
+                    _log.LogInformation(
                         "Finished playing audio '{fileName}' in guild '{guildId}'",
                         audioBlobName,
                         guildId);
@@ -124,7 +127,7 @@ namespace MudakAI.Voice.Functions
             }
             catch (Exception ex)
             {
-                log.LogError(
+                _log.LogError(
                     "Error while playing audio '{fileName}' in discord channel '{channelId}'. Failure: {failure}",
                     audioBlobName,
                     channelId,

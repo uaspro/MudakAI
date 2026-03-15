@@ -1,6 +1,7 @@
 ﻿using Discord.Interactions;
 using MediatR;
 using MudakAI.Chat.WebService.Repositories;
+using MudakAI.Chat.WebService.Resources;
 
 namespace MudakAI.Chat.WebService.CQRS.Commands
 {
@@ -26,12 +27,15 @@ namespace MudakAI.Chat.WebService.CQRS.Commands
         {
             await _botConfigurationRepository.SetPersona(command.GuildId, (command.Description, command.Voice));
 
-            return $"Успішно задано опис персони: \"{command.Description}\", з голосом: \"{command.Voice}\"";
+            return string.Format(Strings.SetPersona_Success, command.Description, command.Voice);
         }
     }
 
     public class SetPersonaDiscordModule : InteractionModuleBase
     {
+        private const string CommandName = "set-persona";
+        private const string CommandDescription = "Задати персону боту";
+
         public enum VoiceSelection
         {
             Male,
@@ -45,7 +49,7 @@ namespace MudakAI.Chat.WebService.CQRS.Commands
             _mediator = mediator;
         }
 
-        [SlashCommand("set-persona", "Задати персону боту")]
+        [SlashCommand(CommandName, CommandDescription)]
         public async Task SetPersona(string description, VoiceSelection voice)
         {
             var response =

@@ -2,6 +2,12 @@
 
 namespace MudakAI.Chat.WebService
 {
+    public class LocalizationSettings
+    {
+        public string DefaultCulture { get; set; }
+        public string[] SupportedCultures { get; set; }
+    }
+
     public class Settings
     {
         private readonly IConfiguration _configuration;
@@ -20,6 +26,8 @@ namespace MudakAI.Chat.WebService
         public int MaxHistoryDepth => _configuration.GetValue<int>("MaxHistoryDepth");
 
         public TimeSpan MaxHistoryAge => _configuration.GetValue<TimeSpan>("MaxHistoryAge");
+
+        public LocalizationSettings Localization => _configuration.GetSection(nameof(Localization)).Get<LocalizationSettings>();
 
         public static Settings CreateFrom(IConfiguration configuration)
         {
@@ -45,6 +53,10 @@ namespace MudakAI.Chat.WebService
             RuleFor(x => x.OpenAI.OpenAIApiKey).NotEmpty();
             RuleFor(x => x.OpenAI.ModelId).NotEmpty();
             RuleFor(x => x.OpenAI.ResponseTokensLimit).GreaterThan(0);
+
+            RuleFor(x => x.Localization).NotNull();
+            RuleFor(x => x.Localization.DefaultCulture).NotEmpty();
+            RuleFor(x => x.Localization.SupportedCultures).NotEmpty();
         }
     }
 }

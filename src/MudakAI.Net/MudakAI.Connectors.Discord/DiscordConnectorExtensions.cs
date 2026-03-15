@@ -23,7 +23,7 @@ namespace MudakAI.Connectors.Discord
                     sp.GetRequiredService<ILogger<DiscordClientService>>(),
                     settings,
                     sp.GetRequiredService<DiscordSocketClient>(),
-                    sp.GetRequiredService<InteractionService>()));
+                    sp.GetService<InteractionService>()));
 
             if (interactionsAssembly != null)
             {

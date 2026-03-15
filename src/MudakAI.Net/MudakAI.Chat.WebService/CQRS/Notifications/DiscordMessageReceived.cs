@@ -3,6 +3,7 @@ using Discord.WebSocket;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using MudakAI.Chat.WebService.Repositories;
+using MudakAI.Chat.WebService.Resources;
 using MudakAI.Connectors.Discord.CQRS.Notifications;
 using MudakAI.Connectors.OpenAI.Services;
 using MudakAI.TextToSpeech.Functions.Services;
@@ -66,8 +67,7 @@ namespace MudakAI.Chat.WebService.CQRS.Notifications
                 var usersInChannel = await message.Channel.GetUsersAsync().FlattenAsync();
                 var channelUserDisplayNames = string.Join(',', usersInChannel.Where(u => !u.IsBot).Select(u => $"\"{((SocketGuildUser)u).DisplayName}\""));
 
-                const string channelInfoMessageTemplate = "Гравці в чаті: {0}";
-                var channelInfoMessage = new ChatMessageContent(AuthorRole.System, string.Format(channelInfoMessageTemplate, channelUserDisplayNames));
+                var channelInfoMessage = new ChatMessageContent(AuthorRole.System, string.Format(Strings.Chat_ChannelInfo, channelUserDisplayNames));
                 chat.Add(channelInfoMessage);
 
                 var chatHistory = await _chatHistoryRepository.GetChatHistory(message.Author.Id.ToString(), message.Channel.Id.ToString());
@@ -76,8 +76,7 @@ namespace MudakAI.Chat.WebService.CQRS.Notifications
                 var messageAuthorDisplayName = ((SocketGuildUser)message.Author).DisplayName;
                 var messageCleanContent = message.CleanContent.Replace($"@{botUser.Username}#{botUser.Discriminator}", string.Empty).Trim();
 
-                const string userMessageTemplate = "[{0}]: {1}";
-                var userMessage = new ChatMessageContent(AuthorRole.User, string.Format(userMessageTemplate, messageAuthorDisplayName, messageCleanContent));
+                var userMessage = new ChatMessageContent(AuthorRole.User, string.Format(Strings.Chat_UserMessage, messageAuthorDisplayName, messageCleanContent));
                 chat.Add(userMessage);
 
                 chatReply = await _openAIChatService.GenerateResponse(chat);

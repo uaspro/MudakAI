@@ -1,28 +1,20 @@
 #See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/azure-functions/dotnet:4 AS base
+FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0 AS base
 WORKDIR /home/site/wwwroot
 EXPOSE 80
 
-# Install FFmpeg
+# Install FFmpeg and audio codecs
 RUN apt-get update && \
-    apt-get install -y ffmpeg && \
+    apt-get install -y ffmpeg libopus-dev libsodium-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Install audio codecs
-RUN apt-get update && \
-    apt-get install -y libopus0=1.3.1-0.1 libsodium23=1.0.18-1 && \
-    apt-get clean
-
-RUN ln -s /usr/lib/x86_64-linux-gnu/libopus.so.0.8.0 /usr/lib/x86_64-linux-gnu/libopus.so && \
-    ln -s /usr/lib/x86_64-linux-gnu/libopus.so.0.8.0 /usr/lib/x86_64-linux-gnu/opus.so && \
-    ln -s /usr/lib/x86_64-linux-gnu/libsodium.so.23.3.0 /usr/lib/x86_64-linux-gnu/libsodium.so && \
-    ln -s /usr/lib/x86_64-linux-gnu/libsodium.so.23.3.0 /usr/lib/x86_64-linux-gnu/libsodium
-
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY ["MudakAI.Voice.Functions/MudakAI.Voice.Functions.csproj", "MudakAI.Voice.Functions/"]
+COPY ["MudakAI.Connectors.Azure.Blob/MudakAI.Connectors.Azure.Blob.csproj", "MudakAI.Connectors.Azure.Blob/"]
+COPY ["MudakAI.Connectors.Discord/MudakAI.Connectors.Discord.csproj", "MudakAI.Connectors.Discord/"]
 RUN dotnet restore "MudakAI.Voice.Functions/MudakAI.Voice.Functions.csproj"
 COPY . .
 WORKDIR "/src/MudakAI.Voice.Functions"

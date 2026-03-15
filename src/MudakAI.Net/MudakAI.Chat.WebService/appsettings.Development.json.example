@@ -1,0 +1,26 @@
+{
+  "ConnectionStrings": {
+    "TableStorage": "UseDevelopmentStorage=true"
+  },
+  "Discord": {
+    "DiscordBotToken": "your-discord-bot-token-here"
+  },
+  "OpenAI": {
+    "OpenAIApiKey": "your-openai-api-key-here",
+    "ModelId": "gpt-4o",
+    "ResponseTokensLimit": 500
+  },
+  "MaxHistoryDepth": 6,
+  "MaxHistoryAge": "00:01:00",
+  "Localization": {
+    "DefaultCulture": "uk-UA",
+    "SupportedCultures": [ "uk-UA", "en-US" ]
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}

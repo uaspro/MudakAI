@@ -1,5 +1,5 @@
 using Azure.Messaging.ServiceBus;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Azure;
 using MudakAI.Connectors.Azure.Blob;
 using MudakAI.TextToSpeech.Functions.Services;
@@ -41,11 +41,11 @@ namespace MudakAI.TextToSpeech.Functions
             _serviceBusPlaybackQueueSender = serviceBusSenderFactory.CreateClient(settings.ServiceBusPlaybackQueueName);
         }
 
-        [FunctionName("TextToSpeechProcessingFunction")]
+        [Function("TextToSpeechProcessingFunction")]
         public async Task Run([ServiceBusTrigger("text-to-speech", Connection = "ServiceBusListen")] TextToSpeechRequest textToSpeechRequest)
         {
             var audioStream = 
-                await _speechGenerationApiService.GenerateSpeech(textToSpeechRequest.Text, textToSpeechRequest.Voice, TextToSpeechEngine.OpenAI);
+                await _speechGenerationApiService.GenerateSpeech(textToSpeechRequest.Text, textToSpeechRequest.Voice, TextToSpeechEngine.Default);
 
             await _blobStorageService.Upload(textToSpeechRequest.UniqueId, audioStream);
 
