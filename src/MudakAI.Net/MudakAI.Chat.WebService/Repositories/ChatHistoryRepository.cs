@@ -58,11 +58,16 @@ namespace MudakAI.Chat.WebService.Repositories
             var partitionKey = GetPartitionKey(userId, now);
             DateTimeOffset thresholdTime = now - _maxHistoryAge;
 
-            var chatHistoryEntities =
-                await Find(ch => ch.PartitionKey == partitionKey && ch.Timestamp >= thresholdTime)
-                        .Where(ch => ch.RowKey.StartsWith(channelId))
-                        .Take(_maxHistoryDepth)
-                        .ToArrayAsync();
+            var chatHistoryEntities = new List<ChatHistoryEntity>();
+            await foreach (var entity in Find(ch => ch.PartitionKey == partitionKey && ch.Timestamp >= thresholdTime))
+            {
+                if (entity.RowKey.StartsWith(channelId))
+                {
+                    chatHistoryEntities.Add(entity);
+                    if (chatHistoryEntities.Count >= _maxHistoryDepth)
+                        break;
+                }
+            }
 
             var chatHistory = new ChatHistory();
 

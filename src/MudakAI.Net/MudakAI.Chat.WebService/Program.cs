@@ -22,7 +22,7 @@ namespace MudakAI.Chat.WebService
             // Configure localization
             ConfigureLocalization(settings.Localization);
 
-            builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+            builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
             // Add services to the container.
             builder.Services.AddAuthorization();
