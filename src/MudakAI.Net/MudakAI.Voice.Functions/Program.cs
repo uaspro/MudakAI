@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MudakAI.Connectors.Azure.Blob;
 using MudakAI.Connectors.Discord;
 
@@ -7,6 +8,11 @@ using Settings = MudakAI.Voice.Functions.Settings;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
+    .ConfigureLogging(logging =>
+    {
+        logging.AddFilter("Azure.Storage", LogLevel.Error);
+        logging.AddFilter("Azure.Core", LogLevel.Error);
+    })
     .ConfigureAppConfiguration((context, config) =>
     {
         config

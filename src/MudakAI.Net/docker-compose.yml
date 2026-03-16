@@ -24,7 +24,7 @@ services:
 
   mudakai.chat.webservice-dapr:
     image: "daprio/daprd:latest"
-    command: [ "./daprd", "-app-id", "mudakaichat-webservice", "-app-port", "80" ]
+    command: [ "./daprd", "-app-id", "mudakaichat-webservice", "-app-port", "8080" ]
     depends_on:
       - mudakai.chat.webservice
     network_mode: "service:mudakai.chat.webservice"
@@ -39,7 +39,7 @@ services:
 
   mudakai.texttospeech.api-dapr:
     image: "daprio/daprd:latest"
-    command: [ "./daprd", "-app-id", "mudakaitexttospeech-api", "-app-port", "80" ]
+    command: [ "./daprd", "-app-id", "mudakaitexttospeech-api", "-app-port", "8080" ]
     depends_on:
       - mudakai.texttospeech.api
     network_mode: "service:mudakai.texttospeech.api"

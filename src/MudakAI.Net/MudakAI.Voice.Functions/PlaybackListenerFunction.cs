@@ -1,3 +1,4 @@
+using Discord;
 using Discord.Audio;
 using Discord.WebSocket;
 using Microsoft.Azure.Functions.Worker;
@@ -7,6 +8,7 @@ using MudakAI.Connectors.Discord.Services;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MudakAI.Voice.Functions
@@ -65,7 +67,7 @@ namespace MudakAI.Voice.Functions
 
                 await _blobLocksService.AcquireLock(guildId, messageId, PlaybackDurationLimit);
 
-                var voiceChannel = await _discordClientService.DiscordClient.GetChannelAsync(ulong.Parse(channelId)) as SocketVoiceChannel;
+                var voiceChannel = _discordClientService.DiscordClient.GetChannel(ulong.Parse(channelId)) as SocketVoiceChannel;
                 if (voiceChannel == null)
                 {
                     return;
@@ -89,7 +91,7 @@ namespace MudakAI.Voice.Functions
                     await audioBlob.CopyToAsync(temporaryAudioFileStream);
                     await temporaryAudioFileStream.FlushAsync();
 
-                    using var audioClient = await voiceChannel.ConnectAsync();
+                    using var audioClient = await voiceChannel.ConnectAsync(selfDeaf: true);
 
                     using var ffmpeg = Process.Start(new ProcessStartInfo
                     {

@@ -8,7 +8,13 @@
       }
     },
     "logLevel": {
-      "MudakAI.Connectors.Discord.Services.DiscordClientService": "Information"
+      "Default": "Warning",
+      "MudakAI": "Information",
+      "Azure.Storage": "Error",
+      "Azure.Core": "Error",
+      "Microsoft.Azure.WebJobs.Extensions.ServiceBus": "Warning",
+      "Function": "Information",
+      "Host.Triggers": "Warning"
     }
   }
 }

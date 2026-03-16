@@ -1,4 +1,5 @@
-﻿using Discord.Interactions;
+﻿using Discord;
+using Discord.Interactions;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,9 +13,13 @@ namespace MudakAI.Connectors.Discord
     {
         public static IServiceCollection AddDiscord(this IServiceCollection services, Settings settings, bool registerEventListener = true, Assembly interactionsAssembly =  null)
         {
-            var discordConfig = new DiscordSocketConfig();
+            var discordConfig = new DiscordSocketConfig
+            {
+                GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.Guilds | GatewayIntents.GuildVoiceStates,
+                LogLevel = LogSeverity.Debug
+            };
             services.AddSingleton(discordConfig)
-                    .AddSingleton<DiscordSocketClient>();
+                    .AddSingleton(new DiscordSocketClient(discordConfig));
 
             services.AddSingleton(
                 sp => new DiscordClientService(
@@ -35,7 +40,9 @@ namespace MudakAI.Connectors.Discord
                         AutoServiceScopes = true
                     });
 
-                services.AddSingleton<InteractionService>();
+                services.AddSingleton(sp => new InteractionService(
+                    sp.GetRequiredService<DiscordSocketClient>(),
+                    sp.GetRequiredService<InteractionServiceConfig>()));
             }
 
             if (registerEventListener)
