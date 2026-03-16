@@ -16,8 +16,9 @@ namespace MudakAI.Connectors.Discord
             var discordConfig = new DiscordSocketConfig
             {
                 GatewayIntents = GatewayIntents.AllUnprivileged | GatewayIntents.Guilds | GatewayIntents.GuildVoiceStates,
-                LogLevel = LogSeverity.Debug
+                EnableVoiceDaveEncryption = true
             };
+
             services.AddSingleton(discordConfig)
                     .AddSingleton(new DiscordSocketClient(discordConfig));
 
