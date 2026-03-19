@@ -1,0 +1,12 @@
+apiVersion: v2
+name: chat-webservice
+description: MudakAI Chat WebService (Discord bot + OpenAI)
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: mudakai-base-app
+    version: "1.0.0"
+    repository: "file://../../shared/helm/mudakai-base-app"
+    alias: app
