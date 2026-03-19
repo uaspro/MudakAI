@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.7.34024.191
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11527.330 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{B22DF0C7-E417-4C9B-947B-1056EFC2C2A0}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudakAI.TextToSpeech.Functions", "MudakAI.TextToSpeech.Functions\MudakAI.TextToSpeech.Functions.csproj", "{D01129CD-E8EB-413B-B184-B3F7BF6B19D9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudakAI.Connectors.Azure.Table", "MudakAI.Connectors.Azure.Table\MudakAI.Connectors.Azure.Table.csproj", "{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discord.Net.WebSocket", "..\..\..\Discord.Net\src\Discord.Net.WebSocket\Discord.Net.WebSocket.csproj", "{61BCCA9B-A107-01FF-9A60-CA0C68C17772}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61BCCA9B-A107-01FF-9A60-CA0C68C17772}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61BCCA9B-A107-01FF-9A60-CA0C68C17772}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61BCCA9B-A107-01FF-9A60-CA0C68C17772}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61BCCA9B-A107-01FF-9A60-CA0C68C17772}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
