@@ -1,0 +1,63 @@
+app:
+  nameOverride: "tts-api"
+
+  replicaCount: 1
+
+  image:
+    repository: mudakai-tts-api
+    pullPolicy: Always
+    tag: "latest"
+
+  imagePullSecrets:
+    - name: registry-credentials
+      create: false
+      dockerconfigjson: ""
+
+  dapr:
+    enabled: true
+    appId: "mudakaitexttospeech-api"
+    appPort: "8080"
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+
+  secret:
+    enabled: true
+    data:
+      ServiceBusConnectionString: ""
+
+  env:
+    - name: ASPNETCORE_ENVIRONMENT
+      value: "Production"
+    - name: ASPNETCORE_URLS
+      value: "http://+:8080"
+
+  envFromSecret: {}
+
+  configMap:
+    enabled: true
+    mountPath: /app/appsettings.json
+    subPath: appsettings.json
+    data:
+      appsettings.json: |
+        {
+          "TextToSpeechQueueName": "text-to-speech",
+          "Logging": {
+            "LogLevel": {
+              "Default": "Information",
+              "Microsoft.AspNetCore": "Warning"
+            }
+          },
+          "AllowedHosts": "*"
+        }
+
+  resources:
+    limits:
+      cpu: 200m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
