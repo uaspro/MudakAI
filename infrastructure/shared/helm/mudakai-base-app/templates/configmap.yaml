@@ -1,0 +1,1 @@
+{{ include "mudakai-base-app.configmap" . }}

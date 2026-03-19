@@ -1,0 +1,3 @@
+{{- if not (and .Values.canary .Values.canary.enabled) }}
+{{ include "mudakai-base-app.deployment" . }}
+{{- end }}
