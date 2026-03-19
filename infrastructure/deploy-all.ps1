@@ -29,6 +29,13 @@ if ($Force) { $deployArgs["Force"] = $true }
 if ($SkipBuild) { $deployArgs["SkipBuild"] = $true }
 if ($AutoApprove) { $deployArgs["AutoApprove"] = $true }
 
+# Set Kubernetes context
+Set-KubernetesContext -Context "t3-k3s"
+
+# Create mudakai namespace (idempotent)
+Write-Host "`nEnsuring mudakai namespace exists..." -ForegroundColor Cyan
+kubectl create namespace mudakai --dry-run=client -o yaml | kubectl apply -f -
+
 # 1. Dapr (prerequisite for all services)
 Write-Host "`n>>> Step 1/6: Dapr <<<" -ForegroundColor Magenta
 & "$PSScriptRoot/dapr/deploy.ps1" @deployArgs

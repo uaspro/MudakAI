@@ -1,5 +1,5 @@
 # Deploy-Common.psm1
-# Common deployment functions for Pi infrastructure projects
+# Common deployment functions for MudakAI infrastructure
 
 $ErrorActionPreference = "Stop"
 

@@ -1,0 +1,6 @@
+dependencies:
+- name: mudakai-base-app
+  repository: file://../../shared/helm/mudakai-base-app
+  version: 1.0.0
+digest: sha256:5c61bd36f4d2ca6a7bf648181f6a1bc87248e1215668553e6cd37a06a4f4dafd
+generated: "2026-03-19T23:40:08.1386397+01:00"

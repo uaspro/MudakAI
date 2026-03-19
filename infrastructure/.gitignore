@@ -1,0 +1,12 @@
+# Terraform
+.terraform/
+*.tfplan
+tfplan
+.terraform.lock.hcl
+
+# Helm dependencies
+**/helm/charts/
+**/helm/*.tgz
+
+# Build artifacts
+.image-hash

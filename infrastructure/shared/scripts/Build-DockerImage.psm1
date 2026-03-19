@@ -1,5 +1,5 @@
 # Build-DockerImage.psm1
-# Docker build and push functions for Pi infrastructure projects
+# Docker build and push functions for MudakAI infrastructure
 
 $ErrorActionPreference = "Stop"
 

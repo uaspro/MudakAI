@@ -23,6 +23,12 @@ if (-not $SkipBuild) {
 }
 
 Update-HelmDependencies -HelmPath "$PSScriptRoot/helm"
-Invoke-TerraformDeploy -Namespace "mudakai" -AutoApprove:$AutoApprove
+
+Push-Location $PSScriptRoot
+try {
+    Invoke-TerraformDeploy -Namespace "mudakai" -AutoApprove:$AutoApprove
+} finally {
+    Pop-Location
+}
 
 Write-Host "`nDone!" -ForegroundColor Green
