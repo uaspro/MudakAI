@@ -1,0 +1,40 @@
+app:
+  nameOverride: "tts-python-api"
+
+  replicaCount: 1
+
+  image:
+    repository: mudakai-tts-python
+    pullPolicy: Always
+    tag: "latest"
+
+  imagePullSecrets:
+    - name: registry-credentials
+      create: false
+      dockerconfigjson: ""
+
+  dapr:
+    enabled: true
+    appId: "tts-api"
+    appPort: "3100"
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 3100
+    targetPort: 3100
+
+  env:
+    - name: PYTHONUNBUFFERED
+      value: "1"
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
+  nodeSelector:
+    kubernetes.io/arch: arm64
