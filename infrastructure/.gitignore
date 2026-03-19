@@ -10,3 +10,6 @@ tfplan
 
 # Build artifacts
 .image-hash
+
+# Environment secrets
+set-env.ps1
