@@ -25,6 +25,7 @@ if (-not $SkipBuild) {
         -SourcePath "$PSScriptRoot/../../src/MudakAI.Net" `
         -DockerfilePath "MudakAI.Voice.Functions/Dockerfile" `
         -Platforms "linux/amd64" `
+        -HashPath $PSScriptRoot `
         -Force:$Force
 }
 

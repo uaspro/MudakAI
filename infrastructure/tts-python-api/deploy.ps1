@@ -18,6 +18,7 @@ if (-not $SkipBuild) {
     Build-AndPushImage `
         -ImageName "mudakai-tts-python" `
         -SourcePath "$PSScriptRoot/../../src/text-to-speech-api" `
+        -HashPath $PSScriptRoot `
         -Force:$Force `
         -IncludePatterns @("*.py", "requirements.txt", "*.yaml", "Dockerfile")
 }

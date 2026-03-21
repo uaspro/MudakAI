@@ -224,11 +224,61 @@ function Invoke-StandardDeploy {
     }
 }
 
+<#
+.SYNOPSIS
+    Ensures a Docker registry pull secret exists in the given namespace (idempotent).
+.PARAMETER Namespace
+    Kubernetes namespace
+.PARAMETER SecretName
+    Name of the image pull secret
+.PARAMETER Registry
+    Docker registry URL
+.PARAMETER Username
+    Registry username
+.PARAMETER Password
+    Registry password
+#>
+function Ensure-RegistrySecret {
+    param(
+        [Parameter(Mandatory = $false)]
+        [string]$Namespace = "mudakai",
+
+        [Parameter(Mandatory = $false)]
+        [string]$SecretName = "registry-credentials",
+
+        [Parameter(Mandatory = $false)]
+        [string]$Registry = "registry-docker-registry.container-registry.svc.cluster.local:5000",
+
+        [Parameter(Mandatory = $false)]
+        [string]$Username = "admin",
+
+        [Parameter(Mandatory = $false)]
+        [string]$Password = $env:TF_VAR_registry_password
+    )
+
+    if (-not $Password) {
+        throw "Registry password not provided. Set TF_VAR_registry_password environment variable."
+    }
+
+    Write-Host "Ensuring registry secret '$SecretName' in namespace '$Namespace'..." -ForegroundColor Cyan
+    kubectl create secret docker-registry $SecretName `
+        -n $Namespace `
+        --docker-server=$Registry `
+        --docker-username=$Username `
+        --docker-password=$Password `
+        --dry-run=client -o yaml | kubectl apply -f -
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Failed to create/update registry secret"
+    }
+}
+
 # Export module functions
 Export-ModuleMember -Function @(
     'Set-KubernetesContext',
     'Update-HelmDependencies',
     'Invoke-TerraformDeploy',
     'Assert-EnvironmentVariables',
-    'Invoke-StandardDeploy'
+    'Invoke-StandardDeploy',
+    'Ensure-RegistrySecret'
 )

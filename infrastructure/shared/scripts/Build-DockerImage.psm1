@@ -144,7 +144,10 @@ function Build-AndPushImage {
         [switch]$Force,
 
         [Parameter(Mandatory = $false)]
-        [string[]]$IncludePatterns = @("*.cs", "*.csproj", "Dockerfile")
+        [string[]]$IncludePatterns = @("*.cs", "*.csproj", "Dockerfile"),
+
+        [Parameter(Mandatory = $false)]
+        [string]$HashPath = "."
     )
 
     # Check for registry password
@@ -154,8 +157,9 @@ function Build-AndPushImage {
         exit 1
     }
 
-    # Check for source changes
-    $changeCheck = Test-SourceChanged -SourcePath $SourcePath -IncludePatterns $IncludePatterns
+    # Check for source changes (hash stored per service directory)
+    $hashFile = Join-Path $HashPath ".image-hash"
+    $changeCheck = Test-SourceChanged -SourcePath $SourcePath -HashFile $hashFile -IncludePatterns $IncludePatterns
 
     if (-not $Force -and -not $changeCheck.Changed) {
         Write-Host "No source changes detected, skipping build..." -ForegroundColor Green
@@ -191,7 +195,7 @@ sudo k3s ctr images rm docker.io/library/${ImageName}:latest `$REGISTRY_IP/${Ima
         if ($LASTEXITCODE -ne 0) { throw "Registry push failed" }
 
         # Save hash
-        Save-SourceHash -Hash $changeCheck.CurrentHash
+        Save-SourceHash -Hash $changeCheck.CurrentHash -HashFile $hashFile
 
         Write-Host "Image pushed successfully!" -ForegroundColor Green
         return $true

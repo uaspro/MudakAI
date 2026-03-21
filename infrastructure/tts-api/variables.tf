@@ -16,12 +16,6 @@ variable "app_name" {
   default     = "tts-api"
 }
 
-variable "registry_password" {
-  description = "Private container registry password"
-  type        = string
-  sensitive   = true
-}
-
 variable "azure_service_bus_connection_string" {
   description = "Azure Service Bus connection string"
   type        = string

@@ -1,15 +1,3 @@
-locals {
-  registry_dockerconfig = base64encode(jsonencode({
-    auths = {
-      "registry-docker-registry.container-registry.svc.cluster.local:5000" = {
-        username = "admin"
-        password = var.registry_password
-        auth     = base64encode("admin:${var.registry_password}")
-      }
-    }
-  }))
-}
-
 module "chat_webservice" {
   source = "../shared/modules/k8s-helm-deployment"
 
@@ -19,13 +7,10 @@ module "chat_webservice" {
   create_namespace = false
 
   helm_set_values = {
-    "app.deploymentTimestamp"        = timestamp()
-    "app.imagePullSecrets[0].name"   = "registry-credentials"
-    "app.imagePullSecrets[0].create" = "true"
+    "app.deploymentTimestamp" = timestamp()
   }
 
   helm_set_sensitive_values = {
-    "app.imagePullSecrets[0].dockerconfigjson"                     = local.registry_dockerconfig
     "app.secret.data.DiscordBotToken"                              = var.discord_bot_token
     "app.secret.data.OpenAIApiKey"                                 = var.openai_api_key
     "app.secret.data.TableStorageConnectionString"                 = var.azure_storage_connection_string

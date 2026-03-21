@@ -24,6 +24,7 @@ if (-not $SkipBuild) {
         -ImageName "mudakai-chat" `
         -SourcePath "$PSScriptRoot/../../src/MudakAI.Net" `
         -DockerfilePath "MudakAI.Chat.WebService/Dockerfile" `
+        -HashPath $PSScriptRoot `
         -Force:$Force
 }
 

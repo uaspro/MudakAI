@@ -16,12 +16,6 @@ variable "app_name" {
   default     = "chat-webservice"
 }
 
-variable "registry_password" {
-  description = "Private container registry password"
-  type        = string
-  sensitive   = true
-}
-
 variable "discord_bot_token" {
   description = "Discord bot token"
   type        = string

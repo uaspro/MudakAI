@@ -22,6 +22,7 @@ if (-not $SkipBuild) {
         -ImageName "mudakai-tts-api" `
         -SourcePath "$PSScriptRoot/../../src/MudakAI.Net" `
         -DockerfilePath "MudakAI.TextToSpeech.API/Dockerfile" `
+        -HashPath $PSScriptRoot `
         -Force:$Force
 }
 

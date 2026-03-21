@@ -16,12 +16,6 @@ variable "app_name" {
   default     = "tts-functions"
 }
 
-variable "registry_password" {
-  description = "Private container registry password"
-  type        = string
-  sensitive   = true
-}
-
 variable "azure_storage_connection_string" {
   description = "Azure Storage connection string"
   type        = string

@@ -15,9 +15,3 @@ variable "app_name" {
   type        = string
   default     = "tts-python-api"
 }
-
-variable "registry_password" {
-  description = "Private container registry password"
-  type        = string
-  sensitive   = true
-}
