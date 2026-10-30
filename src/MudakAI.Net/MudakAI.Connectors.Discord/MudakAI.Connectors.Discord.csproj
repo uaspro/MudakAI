@@ -6,13 +6,10 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Net.Interactions" Version="3.19.1" />
+    <PackageReference Include="Discord.Net.WebSocket" Version="3.19.1" />
     <PackageReference Include="MediatR" Version="11.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Discord.Net\src\Discord.Net.WebSocket\Discord.Net.WebSocket.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 .vs
+**/.claude/settings.local.json
 obj
 bin
 PublishProfiles

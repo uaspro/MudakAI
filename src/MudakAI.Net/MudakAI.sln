@@ -21,8 +21,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudakAI.TextToSpeech.Functi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudakAI.Connectors.Azure.Table", "MudakAI.Connectors.Azure.Table\MudakAI.Connectors.Azure.Table.csproj", "{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Discord.Net.WebSocket", "..\..\..\Discord.Net\src\Discord.Net.WebSocket\Discord.Net.WebSocket.csproj", "{61BCCA9B-A107-01FF-9A60-CA0C68C17772}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,10 +63,6 @@ Global
 		{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{61BCCA9B-A107-01FF-9A60-CA0C68C17772}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{61BCCA9B-A107-01FF-9A60-CA0C68C17772}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{61BCCA9B-A107-01FF-9A60-CA0C68C17772}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{61BCCA9B-A107-01FF-9A60-CA0C68C17772}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

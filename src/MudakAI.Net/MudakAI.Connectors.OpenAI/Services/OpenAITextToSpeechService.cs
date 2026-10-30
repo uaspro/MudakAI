@@ -15,7 +15,9 @@ namespace MudakAI.Connectors.OpenAI.Services
         Fable,
         Onyx,
         Nova,
-        Shimmer
+        Shimmer,
+        Ash,
+        Coral
     }
 
 #pragma warning disable SKEXP0001 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.

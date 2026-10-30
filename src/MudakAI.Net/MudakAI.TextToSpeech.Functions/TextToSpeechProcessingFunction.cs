@@ -44,16 +44,8 @@ namespace MudakAI.TextToSpeech.Functions
         [Function("TextToSpeechProcessingFunction")]
         public async Task Run([ServiceBusTrigger("text-to-speech", Connection = "ServiceBusListen")] TextToSpeechRequest textToSpeechRequest)
         {
-            var textToSpeechEngine = TextToSpeechEngine.Default;
-            var voice = textToSpeechRequest.Voice;
-
-            if ( textToSpeechEngine == TextToSpeechEngine.OpenAI)
-            {
-               voice = string.Equals(voice, "Male", System.StringComparison.InvariantCultureIgnoreCase) ? "cedar" : "marin";
-            }
-
             var audioStream = 
-                await _speechGenerationApiService.GenerateSpeech(textToSpeechRequest.Text, voice, textToSpeechEngine);
+                await _speechGenerationApiService.GenerateSpeech(textToSpeechRequest.Text, textToSpeechRequest.Voice, TextToSpeechEngine.OpenAI);
 
             await _blobStorageService.Upload(textToSpeechRequest.UniqueId, audioStream);
 

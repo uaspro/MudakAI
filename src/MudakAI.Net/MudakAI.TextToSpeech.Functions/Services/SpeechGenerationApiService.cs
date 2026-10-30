@@ -45,8 +45,8 @@ namespace MudakAI.TextToSpeech.Functions.Services
                 case TextToSpeechEngine.OpenAI:
                     var openAIVoice =
                         string.Equals(voice, VoiceSelection.Male.ToString(), System.StringComparison.InvariantCultureIgnoreCase)
-                            ? OpenAITextToSpeechVoice.Onyx
-                            : OpenAITextToSpeechVoice.Nova;
+                            ? OpenAITextToSpeechVoice.Ash
+                            : OpenAITextToSpeechVoice.Coral;
 
                     return GenerateSpeechOpenAI(text, openAIVoice);
                 default:

@@ -51,7 +51,7 @@ app:
           "ServiceBusPlaybackQueueName": "playback",
           "BlobStorageAudioContainerName": "audio",
           "OpenAI": {
-            "TTSModelId": "tts-1"
+            "TTSModelId": "gpt-4o-mini-tts"
           }
         }
 
