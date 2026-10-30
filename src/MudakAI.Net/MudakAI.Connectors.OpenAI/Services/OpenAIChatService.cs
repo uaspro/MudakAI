@@ -2,7 +2,6 @@
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MudakAI.Connectors.OpenAI.Services
@@ -27,12 +26,9 @@ namespace MudakAI.Connectors.OpenAI.Services
             var chatReply = 
                 await _openAIChat.GetChatMessageContentAsync(
                     chatHistory,
-                    new PromptExecutionSettings
+                    new OpenAIPromptExecutionSettings
                     {
-                        ExtensionData = new Dictionary<string, object>() 
-                        {
-                            { "MaxTokens", _settings.ResponseTokensLimit }
-                        }
+                        MaxTokens = _settings.ResponseTokensLimit
                     });
 
             _logger.LogInformation("OpenAI chat response generated: {chatReply}", chatReply);

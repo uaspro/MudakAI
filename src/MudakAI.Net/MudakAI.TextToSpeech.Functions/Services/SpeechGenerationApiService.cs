@@ -70,7 +70,8 @@ namespace MudakAI.TextToSpeech.Functions.Services
                 HttpMethod.Post,
                 "tts-api",
                 "/tts/",
-                new
+                queryStringParameters: null,
+                data: new
                 {
                     text,
                     voice = voice.ToString().ToLowerInvariant()

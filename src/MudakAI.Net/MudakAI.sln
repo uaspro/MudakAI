@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudakAI.TextToSpeech.Functi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudakAI.Connectors.Azure.Table", "MudakAI.Connectors.Azure.Table\MudakAI.Connectors.Azure.Table.csproj", "{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MudakAI.Tests", "..\..\tests\MudakAI.Tests\MudakAI.Tests.csproj", "{D703EAF7-B095-41C5-AB57-E11E91083A76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4DB7D3C3-FE74-479B-B8AB-AE0BBE4221C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D703EAF7-B095-41C5-AB57-E11E91083A76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D703EAF7-B095-41C5-AB57-E11E91083A76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D703EAF7-B095-41C5-AB57-E11E91083A76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D703EAF7-B095-41C5-AB57-E11E91083A76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
