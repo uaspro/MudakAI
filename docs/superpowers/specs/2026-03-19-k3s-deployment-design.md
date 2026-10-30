@@ -2,7 +2,7 @@
 
 ## Overview
 
-Deploy all 5 MudakAI services to a home lab k3s cluster, mirroring the deployment patterns from the Pi project (`C:\Dev\Pi`). Uses Terraform + Helm for infrastructure-as-code, multi-arch Docker builds, Dapr for service mesh, and the existing private container registry.
+Deploy all 4 MudakAI services to a home lab k3s cluster, mirroring the deployment patterns from the Pi project (`C:\Dev\Pi`). Uses Terraform + Helm for infrastructure-as-code, multi-arch Docker builds, Dapr for service mesh, and the existing private container registry.
 
 ## Services
 
@@ -12,23 +12,21 @@ All services deploy into a single `mudakai` namespace to simplify Dapr service d
 |---|---|---|---|---|---|
 | Chat.WebService | mudakai-chat | 8080 | any | mudakaichat-webservice | amd64 + arm64 |
 | TextToSpeech.API | mudakai-tts-api | 8080 | any | mudakaitexttospeech-api | amd64 + arm64 |
-| TextToSpeech.Functions | mudakai-tts-functions | 80 | any | mudakaitexttospeech-functions | amd64 + arm64 |
+| TextToSpeech.Functions | mudakai-tts-functions | 80 | amd64 only | none | amd64 only |
 | Voice.Functions | mudakai-voice-functions | 80 | amd64 only | mudakaivoice-functions | amd64 only |
-| text-to-speech-api (Python) | mudakai-tts-python | 3100 | arm64 only | tts-api | amd64 + arm64 |
 
-Dapr App IDs match the values hardcoded in source code (`TextToSpeechApiService.cs`, `SpeechGenerationApiService.cs`, `docker-compose.yml`).
+Dapr App IDs match the values hardcoded in source code (`TextToSpeechApiService.cs`, `docker-compose.yml`).
 
 Voice.Functions is amd64-only because its Dockerfile has hardcoded amd64 native libraries (libopus, libsodium, libdave).
 
-All services: 1 replica, Dapr sidecar enabled.
+All services use 1 replica. TextToSpeech.Functions calls OpenAI directly and has no Dapr sidecar.
 
 ## Directory Structure
 
 ```
 C:\Dev\MudakAI\
 ├── src/                              # Existing source code (unchanged)
-│   ├── MudakAI.Net/
-│   └── text-to-speech-api/
+│   └── MudakAI.Net/
 ├── infrastructure/
 │   ├── deploy-all.ps1                # Root orchestrator
 │   ├── shared/
@@ -54,11 +52,7 @@ C:\Dev\MudakAI\
 │   │   ├── deploy.ps1
 │   │   ├── main.tf, providers.tf, variables.tf
 │   │   └── helm/
-│   ├── voice-functions/
-│   │   ├── deploy.ps1
-│   │   ├── main.tf, providers.tf, variables.tf
-│   │   └── helm/
-│   └── tts-python-api/
+│   └── voice-functions/
 │       ├── deploy.ps1
 │       ├── main.tf, providers.tf, variables.tf
 │       └── helm/
@@ -67,7 +61,7 @@ C:\Dev\MudakAI\
 ## Terraform State
 
 - Backend: Azure Storage Account `aydevsa`, resource group `ay-dev-001`, container `tfstate`
-- Keys: `mudakai/dapr.tfstate`, `mudakai/chat-webservice.tfstate`, `mudakai/tts-api.tfstate`, `mudakai/tts-functions.tfstate`, `mudakai/voice-functions.tfstate`, `mudakai/tts-python-api.tfstate`
+- Keys: `mudakai/dapr.tfstate`, `mudakai/chat-webservice.tfstate`, `mudakai/tts-api.tfstate`, `mudakai/tts-functions.tfstate`, `mudakai/voice-functions.tfstate`
 
 ## Shared Infrastructure
 
@@ -86,7 +80,6 @@ Copied from `C:\Dev\Pi\pi-shared-infrastructure` and adapted:
 - `Get-SourceHash` — SHA256 of source files
 - `Test-SourceChanged` — checks if rebuild needed
 - `Build-AndPushImage` — multi-arch build → SCP to t3 → import to k3s containerd → push to registry
-- Python TTS service must pass custom `IncludePatterns` (`@("*.py", "requirements.txt", "*.yaml", "Dockerfile")`) since defaults only cover .NET files
 
 ### Terraform Module (k8s-helm-deployment)
 
@@ -109,11 +102,10 @@ Based on `pi-base-app`. Provides templates for:
 Validates all required env vars, then deploys in order:
 
 1. **Dapr** — Terraform-managed Helm release of `dapr/dapr` into `dapr-system` namespace
-2. **tts-python-api** — Python TTS with arm64 nodeSelector
-3. **tts-api** — .NET TTS orchestration
-4. **tts-functions** — TTS Azure Functions
-5. **voice-functions** — Voice Azure Functions
-6. **chat-webservice** — Main chat service (deployed last, depends on others)
+2. **tts-api** — .NET TTS orchestration
+3. **tts-functions** — TTS Azure Functions
+4. **voice-functions** — Voice Azure Functions
+5. **chat-webservice** — Main chat service (deployed last, depends on others)
 
 Each service step: `Build-AndPushImage` → `Invoke-TerraformDeploy`
 
@@ -173,9 +165,6 @@ Each service has a standalone deploy.ps1 for independent deployment.
 | `BlobStorageAudioContainerName` | `"audio"` | configmap |
 | `BlobStorageLocksContainerName` | `"locks"` | configmap |
 
-### text-to-speech-api (Python)
-No secrets or configuration required. Uses default config.yaml baked into the Docker image.
-
 ## Secrets Management
 
 Secrets flow: shell env vars → Terraform variables → `helm_set_sensitive_values` → Kubernetes Secrets → pod env vars (via `envFromSecret` in Helm values).
@@ -184,22 +173,21 @@ Secrets flow: shell env vars → Terraform variables → `helm_set_sensitive_val
 
 Images built using `docker buildx` with existing Dockerfiles from `src/`. Azure Functions services keep their Azure Functions base images.
 
-- **Multi-arch (amd64 + arm64):** Chat.WebService, TextToSpeech.API, TextToSpeech.Functions, text-to-speech-api
-- **amd64-only:** Voice.Functions (hardcoded amd64 native libraries: libopus, libsodium, libdave)
+- **Multi-arch (amd64 + arm64):** Chat.WebService, TextToSpeech.API
+- **amd64-only:** TextToSpeech.Functions (Functions base image), Voice.Functions (native audio libraries)
 
-.NET Dockerfiles use build context `src/MudakAI.Net/`. Python TTS uses build context `src/text-to-speech-api/`.
+.NET Dockerfiles use build context `src/MudakAI.Net/`.
 
 ## Node Targeting
 
-- **text-to-speech-api (Python):** `nodeSelector: { kubernetes.io/arch: arm64 }`
-- **Voice.Functions:** `nodeSelector: { kubernetes.io/arch: amd64 }` (amd64 native deps)
+- **TextToSpeech.Functions and Voice.Functions:** `nodeSelector: { kubernetes.io/arch: amd64 }` (amd64 native deps)
 - **All other services:** No nodeSelector (schedule on any available node)
 
 ## Dapr Configuration
 
 - Installed via Terraform-managed Helm release (`dapr/dapr`) into `dapr-system` namespace
 - Dapr is used only for service-to-service invocation — no Dapr component CRDs are needed
-- Each service pod gets Dapr sidecar via annotations:
+- Chat, the queue API, and voice pods get a Dapr sidecar via annotations:
   - `dapr.io/enabled: "true"`
   - `dapr.io/app-id: "<service-dapr-id>"`
   - `dapr.io/app-port: "<service-port>"`

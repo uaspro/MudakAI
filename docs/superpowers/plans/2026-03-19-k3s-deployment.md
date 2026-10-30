@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Deploy all 5 MudakAI services to a home lab k3s cluster using Terraform + Helm + PowerShell, mirroring the Pi project patterns.
+**Goal:** Deploy all 4 MudakAI services to a home lab k3s cluster using Terraform + Helm + PowerShell, mirroring the Pi project patterns.
 
 **Architecture:** Self-contained infrastructure directory with shared modules (PowerShell, Terraform, Helm base chart) copied from Pi and adapted. Per-service Terraform + Helm configurations. Dapr installed via Terraform-managed Helm release. Single `mudakai` namespace.
 
@@ -299,7 +299,7 @@ git commit -m "feat: add mudakai-base-app Helm library chart"
 
 ---
 
-## Chunk 2: Dapr and Python TTS Service
+## Chunk 2: Dapr
 
 ### Task 4: Dapr Infrastructure
 
@@ -407,225 +407,6 @@ git commit -m "feat: add Dapr Terraform deployment"
 
 ---
 
-### Task 5: Python TTS Service (tts-python-api, arm64 only)
-
-**Files:**
-- Create: `infrastructure/tts-python-api/deploy.ps1`
-- Create: `infrastructure/tts-python-api/main.tf`
-- Create: `infrastructure/tts-python-api/providers.tf`
-- Create: `infrastructure/tts-python-api/variables.tf`
-- Create: `infrastructure/tts-python-api/helm/Chart.yaml`
-- Create: `infrastructure/tts-python-api/helm/values.yaml`
-
-- [ ] **Step 1: Create providers.tf**
-
-```hcl
-terraform {
-  required_version = ">= 1.0"
-
-  backend "azurerm" {
-    resource_group_name  = "ay-dev-001"
-    storage_account_name = "aydevsa"
-    container_name       = "tfstate"
-    key                  = "mudakai/tts-python-api.tfstate"
-  }
-
-  required_providers {
-    kubernetes = {
-      source  = "hashicorp/kubernetes"
-      version = "~> 2.23"
-    }
-    helm = {
-      source  = "hashicorp/helm"
-      version = "~> 2.11"
-    }
-  }
-}
-
-provider "kubernetes" {
-  config_path    = "~/.kube/config"
-  config_context = var.kubernetes_context
-}
-
-provider "helm" {
-  kubernetes {
-    config_path    = "~/.kube/config"
-    config_context = var.kubernetes_context
-  }
-}
-```
-
-- [ ] **Step 2: Create variables.tf**
-
-```hcl
-variable "kubernetes_context" {
-  description = "Kubernetes context to use"
-  type        = string
-  default     = "t3-k3s"
-}
-
-variable "namespace" {
-  description = "Kubernetes namespace"
-  type        = string
-  default     = "mudakai"
-}
-
-variable "app_name" {
-  description = "Application name"
-  type        = string
-  default     = "tts-python-api"
-}
-
-variable "registry_password" {
-  description = "Private container registry password"
-  type        = string
-  sensitive   = true
-}
-```
-
-- [ ] **Step 3: Create main.tf**
-
-```hcl
-locals {
-  registry_dockerconfig = base64encode(jsonencode({
-    auths = {
-      "registry-docker-registry.container-registry.svc.cluster.local:5000" = {
-        username = "admin"
-        password = var.registry_password
-        auth     = base64encode("admin:${var.registry_password}")
-      }
-    }
-  }))
-}
-
-module "tts_python_api" {
-  source = "../shared/modules/k8s-helm-deployment"
-
-  namespace       = var.namespace
-  app_name        = var.app_name
-  helm_chart_path = "${path.module}/helm"
-
-  helm_set_values = {
-    "app.deploymentTimestamp"        = timestamp()
-    "app.imagePullSecrets[0].name"   = "registry-credentials"
-    "app.imagePullSecrets[0].create" = "true"
-  }
-
-  helm_set_sensitive_values = {
-    "app.imagePullSecrets[0].dockerconfigjson" = local.registry_dockerconfig
-  }
-}
-```
-
-- [ ] **Step 4: Create helm/Chart.yaml**
-
-```yaml
-apiVersion: v2
-name: tts-python-api
-description: Ukrainian text-to-speech Python API
-type: application
-version: 1.0.0
-appVersion: "1.0.0"
-
-dependencies:
-  - name: mudakai-base-app
-    version: "1.0.0"
-    repository: "file://../../shared/helm/mudakai-base-app"
-    alias: app
-```
-
-- [ ] **Step 5: Create helm/values.yaml**
-
-```yaml
-app:
-  nameOverride: "tts-python-api"
-
-  replicaCount: 1
-
-  image:
-    repository: mudakai-tts-python
-    pullPolicy: Always
-    tag: "latest"
-
-  imagePullSecrets:
-    - name: registry-credentials
-      create: false
-      dockerconfigjson: ""
-
-  dapr:
-    enabled: true
-    appId: "tts-api"
-    appPort: "3100"
-
-  service:
-    enabled: true
-    type: ClusterIP
-    port: 3100
-    targetPort: 3100
-
-  env:
-    - name: PYTHONUNBUFFERED
-      value: "1"
-
-  resources:
-    limits:
-      cpu: 1000m
-      memory: 1Gi
-    requests:
-      cpu: 200m
-      memory: 256Mi
-
-  nodeSelector:
-    kubernetes.io/arch: arm64
-```
-
-- [ ] **Step 6: Create deploy.ps1**
-
-```powershell
-param(
-    [switch]$Force,
-    [switch]$SkipBuild,
-    [switch]$AutoApprove
-)
-
-$ErrorActionPreference = "Stop"
-
-Import-Module "$PSScriptRoot/../shared/scripts/Deploy-Common.psm1" -Force
-Import-Module "$PSScriptRoot/../shared/scripts/Build-DockerImage.psm1" -Force
-
-Write-Host "=== TTS Python API Deployment ===" -ForegroundColor Cyan
-
-Assert-EnvironmentVariables -Variables @("TF_VAR_registry_password")
-Set-KubernetesContext -Context "t3-k3s"
-
-if (-not $SkipBuild) {
-    Build-AndPushImage `
-        -ImageName "mudakai-tts-python" `
-        -SourcePath "$PSScriptRoot/../../src/text-to-speech-api" `
-        -Force:$Force `
-        -IncludePatterns @("*.py", "requirements.txt", "*.yaml", "Dockerfile")
-}
-
-Update-HelmDependencies -HelmPath "$PSScriptRoot/helm"
-Invoke-TerraformDeploy -Namespace "mudakai" -AutoApprove:$AutoApprove
-
-Write-Host "`nDone!" -ForegroundColor Green
-```
-
-- [ ] **Step 7: Validate**
-
-Run: `cd infrastructure/tts-python-api && terraform init && terraform validate`
-Run: `helm lint infrastructure/tts-python-api/helm/ --set app.image.repository=test`
-
-- [ ] **Step 8: Commit**
-
-```bash
-git add infrastructure/tts-python-api/
-git commit -m "feat: add tts-python-api k3s deployment (arm64)"
-```
-
----
-
 ## Chunk 3: .NET Service Deployments
 
 ### Task 6: TextToSpeech.API Service (tts-api)
@@ -640,7 +421,7 @@ git commit -m "feat: add tts-python-api k3s deployment (arm64)"
 
 - [ ] **Step 1: Create providers.tf**
 
-Same pattern as Task 5, with key: `"mudakai/tts-api.tfstate"`
+Use the Azure Storage backend and Kubernetes/Helm providers in `infrastructure/tts-api/providers.tf`, with key: `"mudakai/tts-api.tfstate"`.
 
 - [ ] **Step 2: Create variables.tf**
 
@@ -988,9 +769,10 @@ app:
       dockerconfigjson: ""
 
   dapr:
-    enabled: true
-    appId: "mudakaitexttospeech-functions"
-    appPort: "80"
+    enabled: false
+
+  podAnnotations:
+    dapr.io/enabled: "false"
 
   service:
     enabled: true
@@ -1615,28 +1397,24 @@ if ($Force) { $deployArgs["Force"] = $true }
 if ($SkipBuild) { $deployArgs["SkipBuild"] = $true }
 if ($AutoApprove) { $deployArgs["AutoApprove"] = $true }
 
-# 1. Dapr (prerequisite for all services)
-Write-Host "`n>>> Step 1/6: Dapr <<<" -ForegroundColor Magenta
+# 1. Dapr (for service-to-service invocation)
+Write-Host "`n>>> Step 1/5: Dapr <<<" -ForegroundColor Magenta
 & "$PSScriptRoot/dapr/deploy.ps1" @deployArgs
 
-# 2. Python TTS API (no dependencies, arm64)
-Write-Host "`n>>> Step 2/6: TTS Python API <<<" -ForegroundColor Magenta
-& "$PSScriptRoot/tts-python-api/deploy.ps1" @deployArgs
-
-# 3. TTS API (.NET orchestration)
-Write-Host "`n>>> Step 3/6: TTS API <<<" -ForegroundColor Magenta
+# 2. TTS API (.NET orchestration)
+Write-Host "`n>>> Step 2/5: TTS API <<<" -ForegroundColor Magenta
 & "$PSScriptRoot/tts-api/deploy.ps1" @deployArgs
 
-# 4. TTS Functions
-Write-Host "`n>>> Step 4/6: TTS Functions <<<" -ForegroundColor Magenta
+# 3. TTS Functions
+Write-Host "`n>>> Step 3/5: TTS Functions <<<" -ForegroundColor Magenta
 & "$PSScriptRoot/tts-functions/deploy.ps1" @deployArgs
 
-# 5. Voice Functions (amd64 only)
-Write-Host "`n>>> Step 5/6: Voice Functions <<<" -ForegroundColor Magenta
+# 4. Voice Functions (amd64 only)
+Write-Host "`n>>> Step 4/5: Voice Functions <<<" -ForegroundColor Magenta
 & "$PSScriptRoot/voice-functions/deploy.ps1" @deployArgs
 
-# 6. Chat WebService (depends on all others)
-Write-Host "`n>>> Step 6/6: Chat WebService <<<" -ForegroundColor Magenta
+# 5. Chat WebService (depends on all others)
+Write-Host "`n>>> Step 5/5: Chat WebService <<<" -ForegroundColor Magenta
 & "$PSScriptRoot/chat-webservice/deploy.ps1" @deployArgs
 
 # Final status
@@ -1664,7 +1442,6 @@ git commit -m "feat: add deploy-all.ps1 root orchestrator"
 Run from each service directory:
 ```bash
 cd infrastructure/dapr && terraform init && terraform validate
-cd infrastructure/tts-python-api && terraform init && terraform validate
 cd infrastructure/tts-api && terraform init && terraform validate
 cd infrastructure/tts-functions && terraform init && terraform validate
 cd infrastructure/voice-functions && terraform init && terraform validate
@@ -1680,7 +1457,6 @@ helm lint infrastructure/shared/helm/mudakai-base-app/
 
 For service charts, update dependencies first then lint:
 ```bash
-cd infrastructure/tts-python-api/helm && helm dependency update && cd .. && helm lint helm/
 cd infrastructure/tts-api/helm && helm dependency update && cd .. && helm lint helm/
 cd infrastructure/tts-functions/helm && helm dependency update && cd .. && helm lint helm/
 cd infrastructure/voice-functions/helm && helm dependency update && cd .. && helm lint helm/
@@ -1692,7 +1468,7 @@ Expected: All pass lint
 
 For each service chart, verify templates render correctly:
 ```bash
-helm template test infrastructure/tts-python-api/helm/
+helm template test infrastructure/tts-functions/helm/
 ```
 Expected: Valid Kubernetes YAML with correct Dapr annotations, nodeSelector, etc.
 

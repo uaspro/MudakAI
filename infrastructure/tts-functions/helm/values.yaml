@@ -14,9 +14,10 @@ app:
       dockerconfigjson: ""
 
   dapr:
-    enabled: true
-    appId: "mudakaitexttospeech-functions"
-    appPort: "80"
+    enabled: false
+
+  podAnnotations:
+    dapr.io/enabled: "false"
 
   service:
     enabled: true

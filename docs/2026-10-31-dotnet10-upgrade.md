@@ -16,7 +16,7 @@ Compatibility changes:
   its voice mapping, configured model, and WAV response format.
 - Use typed chat execution settings to retain the configured response token
   limit with the updated Semantic Kernel/OpenAI SDKs.
-- Pass the new Dapr query-parameter argument explicitly when invoking Python TTS.
+- The speech worker uses OpenAI directly and does not require Dapr.
 - Install voice dependencies from the Ubuntu 24.04 LTS Functions image, replacing
   the previous Debian package mixing. Keep libdave pinned to 1.1.1.
 
@@ -27,10 +27,10 @@ dotnet test --project tests/MudakAI.Tests/MudakAI.Tests.csproj -c Release
 dotnet list tests/MudakAI.Tests/MudakAI.Tests.csproj package --include-transitive --vulnerable
 ```
 
-The 12 tests cover the HTTP-to-Service-Bus contract, malformed JSON, required
+The 10 tests cover the HTTP-to-Service-Bus contract, malformed JSON, required
 configuration, Swagger, playback message compatibility, chat settings/history,
-OpenAI voice selection/WAV bytes, and Dapr request routing. They use fake external
-services and do not post to Discord or production queues.
+and OpenAI voice selection/WAV bytes. They use fake external services and do not
+post to Discord or production queues.
 
 Both Functions projects generate identical trigger metadata to the .NET 8 build.
 All four deployment images build successfully; the web images retain amd64 and
@@ -44,7 +44,7 @@ Deployment verification on `t3-k3s`, namespace `mudakai`:
 
 - All four Terraform/Helm deployments completed; all pods are ready with zero
   restarts and report .NET 10.0.14.
-- Running image digests match the built images published as `lts-20261031` and
+- Running image digests match the built images published with release tags and
   `latest`. The TTS API is running on the ARM64 Raspberry Pi node.
 - Chat connected to Discord and registered both guilds. The voice connection
   timer succeeded, and the TTS worker initialized its Service Bus trigger.

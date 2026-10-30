@@ -26,8 +26,6 @@ var host = new HostBuilder()
 
         services.AddSingleton(settings);
 
-        services.AddDaprClient();
-
         services.AddBlobStorage(settings.BlobStorageConnectionString, settings.BlobStorageAudioContainerName);
 
         services.AddAzureClients(clientBuilder =>

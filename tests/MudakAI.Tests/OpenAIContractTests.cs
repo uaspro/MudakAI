@@ -54,12 +54,13 @@ namespace MudakAI.Tests
         [InlineData("Male", "ash")]
         [InlineData("male", "ash")]
         [InlineData("Female", "coral")]
-        public async Task SpeechKeepsVoiceSelectionAndWavFormatForDiscordPlayback(string voice, string expectedVoice)
+        public async Task SpeechUsesOpenAIVoicesAndWavFormatForDiscordPlayback(string voice, string expectedVoice)
         {
             var settings = new Settings { TTSModelId = "gpt-4o-mini-tts" };
             var audio = Encoding.ASCII.GetBytes("RIFF-test-WAVE");
             using var handler = new ContractHandler(async request =>
             {
+                Assert.Equal("api.openai.com", request.RequestUri.Host);
                 Assert.Equal("/v1/audio/speech", request.RequestUri.AbsolutePath);
                 using var json = JsonDocument.Parse(await request.Content.ReadAsStringAsync());
                 Assert.Equal(settings.TTSModelId, json.RootElement.GetProperty("model").GetString());
@@ -72,9 +73,9 @@ namespace MudakAI.Tests
             var connector = new AudioClient(settings.TTSModelId, new ApiKeyCredential("test-key"),
                 new OpenAIClientOptions { Transport = new HttpClientPipelineTransport(client) });
             var speech = new OpenAITextToSpeechService(NullLogger<OpenAIChatService>.Instance, settings, connector);
-            var service = new SpeechGenerationApiService(null, speech);
+            var service = new SpeechGenerationApiService(speech);
 
-            using var result = await service.GenerateSpeech("Привіт", voice, TextToSpeechEngine.OpenAI);
+            using var result = await service.GenerateSpeech("Привіт", voice);
             using var buffer = new MemoryStream();
             await result.CopyToAsync(buffer, TestContext.Current.CancellationToken);
 
