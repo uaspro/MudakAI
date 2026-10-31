@@ -1,1 +1,0 @@
-{{ include "mudakai-base-app.deployment" . }}

@@ -1,6 +1,0 @@
-apiVersion: v2
-name: mudakai-base-app
-description: Base Helm chart for MudakAI applications - shared dependency
-type: application
-version: 1.0.0
-appVersion: "1.0.0"

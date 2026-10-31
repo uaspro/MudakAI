@@ -3,13 +3,20 @@
 *.tfplan
 tfplan
 .terraform.lock.hcl
+!/.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+crash.log
 
 # Helm dependencies
-**/helm/charts/
-**/helm/*.tgz
+**/charts/
+**/*.tgz
 
 # Build artifacts
 .image-hash
+.image-hashes/
 
 # Environment secrets
 set-env.ps1

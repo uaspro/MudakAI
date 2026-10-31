@@ -1,0 +1,6 @@
+dependencies:
+- name: pi-base-app
+  repository: file://../../../../pi-shared-infrastructure/library/helm/pi-base-app
+  version: 1.1.0
+digest: sha256:a39e174b20bb2c299219961d26222840b620b28b9637f33f7bf30879a142ce73
+generated: "2026-10-31T00:58:34.2176554+01:00"

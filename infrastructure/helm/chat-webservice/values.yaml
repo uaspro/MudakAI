@@ -1,0 +1,83 @@
+app:
+  nameOverride: "chat-webservice"
+
+  replicaCount: 1
+
+  image:
+    repository: mudakai-chat
+    pullPolicy: Always
+    tag: "latest"
+
+  imagePullSecrets:
+    - name: registry-credentials
+      create: false
+      dockerconfigjson: ""
+
+  podAnnotations:
+    dapr.io/enabled: "true"
+    dapr.io/app-id: "mudakaichat-webservice"
+    dapr.io/app-port: "8080"
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 80
+    targetPort: 8080
+
+  secret:
+    enabled: true
+    data:
+      DiscordBotToken: ""
+      OpenAIApiKey: ""
+      TableStorageConnectionString: ""
+
+  env:
+    - name: ASPNETCORE_ENVIRONMENT
+      value: "Production"
+    - name: ASPNETCORE_URLS
+      value: "http://+:8080"
+
+  envFromSecret:
+    Discord__DiscordBotToken:
+      secretName: chat-webservice
+      key: DiscordBotToken
+    OpenAI__OpenAIApiKey:
+      secretName: chat-webservice
+      key: OpenAIApiKey
+    ConnectionStrings__TableStorage:
+      secretName: chat-webservice
+      key: TableStorageConnectionString
+
+  configMap:
+    enabled: true
+    mountPath: /app/appsettings.json
+    subPath: appsettings.json
+    data:
+      appsettings.json: |
+        {
+          "OpenAI": {
+            "ModelId": "gpt-4.1-mini",
+            "ResponseTokensLimit": 500
+          },
+          "MaxHistoryDepth": 6,
+          "MaxHistoryAge": "00:01:00",
+          "Localization": {
+            "DefaultCulture": "uk-UA",
+            "SupportedCultures": ["uk-UA", "en-US"]
+          },
+          "Logging": {
+            "LogLevel": {
+              "Default": "Information",
+              "Microsoft.AspNetCore": "Warning"
+            }
+          },
+          "AllowedHosts": "*"
+        }
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi

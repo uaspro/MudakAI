@@ -1,0 +1,75 @@
+app:
+  nameOverride: "voice-functions"
+
+  replicaCount: 1
+
+  image:
+    repository: mudakai-voice-functions
+    pullPolicy: Always
+    tag: "latest"
+
+  imagePullSecrets:
+    - name: registry-credentials
+      create: false
+      dockerconfigjson: ""
+
+  podAnnotations:
+    dapr.io/enabled: "true"
+    dapr.io/app-id: "mudakaivoice-functions"
+    dapr.io/app-port: "80"
+
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 80
+    targetPort: 80
+
+  secret:
+    enabled: true
+    data:
+      AzureWebJobsStorage: ""
+      BlobStorage: ""
+      ServiceBus: ""
+      DiscordBotToken: ""
+
+  env:
+    - name: FUNCTIONS_WORKER_RUNTIME
+      value: "dotnet-isolated"
+    - name: AzureWebJobsScriptRoot
+      value: "/home/site/wwwroot"
+
+  envFromSecret:
+    AzureWebJobsStorage:
+      secretName: voice-functions
+      key: AzureWebJobsStorage
+    BlobStorage:
+      secretName: voice-functions
+      key: BlobStorage
+    ServiceBus:
+      secretName: voice-functions
+      key: ServiceBus
+    DiscordBotToken:
+      secretName: voice-functions
+      key: DiscordBotToken
+
+  configMap:
+    enabled: true
+    mountPath: /home/site/wwwroot/appsettings.json
+    subPath: appsettings.json
+    data:
+      appsettings.json: |
+        {
+          "BlobStorageAudioContainerName": "audio",
+          "BlobStorageLocksContainerName": "locks"
+        }
+
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  nodeSelector:
+    kubernetes.io/arch: amd64
